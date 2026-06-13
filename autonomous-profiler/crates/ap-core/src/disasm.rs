@@ -11,6 +11,37 @@ use anyhow::{anyhow, bail, Context, Result};
 use std::path::Path;
 use std::process::Command;
 
+/// Instruction-set architecture of the disassembled binary. Drives which
+/// instruction-classifier (and which SIMD vocabulary) we use.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Arch {
+    /// ARM64 — Apple Silicon AND Linux aarch64 (same ISA: NEON, fadd, ldr/ldp…).
+    Aarch64,
+    /// x86-64 — SSE/AVX: xmm/ymm/zmm, packed *pd/*ps, scalar *sd/*ss, j*/cmp.
+    X86_64,
+    Other,
+}
+
+impl Arch {
+    fn detect(disasm: &str) -> Arch {
+        let head = disasm.lines().take(5).collect::<String>().to_lowercase();
+        if head.contains("arm64") || head.contains("aarch64") {
+            Arch::Aarch64
+        } else if head.contains("x86-64") || head.contains("x86_64") || head.contains("i386") {
+            Arch::X86_64
+        } else {
+            Arch::Other
+        }
+    }
+    fn simd_name(&self) -> &'static str {
+        match self {
+            Arch::Aarch64 => "NEON",
+            Arch::X86_64 => "SSE/AVX",
+            Arch::Other => "SIMD",
+        }
+    }
+}
+
 #[derive(Debug, Default, Clone)]
 pub struct InstrMix {
     pub total: usize,
@@ -27,24 +58,35 @@ impl InstrMix {
     }
 
     /// Heuristic read of what likely makes the function expensive.
-    pub fn why_hot(&self) -> String {
+    pub fn why_hot(&self, arch: Arch) -> String {
         if self.total == 0 {
             return "no instructions parsed".into();
+        }
+        if arch == Arch::Other {
+            return format!(
+                "{} instructions; mix classification not available for this architecture (ARM64 + x86-64 supported)",
+                self.total
+            );
         }
         let mut notes = Vec::new();
         if self.fdiv > 0 {
             notes.push(format!(
-                "{} floating-point divide(s) (expensive on ARM; consider reciprocal/precompute)",
+                "{} floating-point divide(s) (expensive; consider reciprocal/precompute)",
                 self.fdiv
             ));
         }
         if self.simd == 0 && self.scalar_fp > 0 {
             notes.push(format!(
-                "scalar FP, NO NEON SIMD ({}% scalar-FP) — the hot loop did NOT vectorize; a SIMD rewrite (core::simd / NEON intrinsics) may help",
+                "scalar FP, NO {} SIMD ({}% scalar-FP) — the hot loop did NOT vectorize; a SIMD rewrite (core::simd / intrinsics) may help",
+                arch.simd_name(),
                 self.pct(self.scalar_fp)
             ));
         } else if self.simd > 0 {
-            notes.push(format!("already NEON-vectorized ({} vector ops)", self.simd));
+            notes.push(format!(
+                "already {}-vectorized ({} vector ops)",
+                arch.simd_name(),
+                self.simd
+            ));
         }
         if self.pct(self.mem) >= 40 {
             notes.push(format!(
@@ -68,6 +110,7 @@ impl InstrMix {
 pub struct AsmReport {
     pub mangled: String,
     pub demangled: String,
+    pub arch: Arch,
     pub lines: Vec<String>,
     pub mix: InstrMix,
 }
@@ -96,11 +139,16 @@ pub fn disassemble_fn(bin: &Path, needle: &str) -> Result<AsmReport> {
     let demangled = demangle_one(&mangled);
 
     let dis = run_objdump(bin, &mangled)?;
+    let arch = Arch::detect(&dis);
     let mut lines = Vec::new();
     let mut mix = InstrMix::default();
     for l in dis.lines() {
         if is_insn_line(l) {
-            classify(l, &mut mix);
+            match arch {
+                Arch::Aarch64 => classify_arm(l, &mut mix),
+                Arch::X86_64 => classify_x86(l, &mut mix),
+                Arch::Other => mix.total += 1,
+            }
             lines.push(l.to_string());
         }
     }
@@ -110,6 +158,7 @@ pub fn disassemble_fn(bin: &Path, needle: &str) -> Result<AsmReport> {
     Ok(AsmReport {
         mangled,
         demangled,
+        arch,
         lines,
         mix,
     })
@@ -141,7 +190,9 @@ fn is_insn_line(l: &str) -> bool {
     }
 }
 
-fn classify(l: &str, mix: &mut InstrMix) {
+/// ARM64 (Apple Silicon + Linux aarch64): NEON vector operands, f-prefixed FP,
+/// ldr/ldp loads, b./cbz branches.
+fn classify_arm(l: &str, mix: &mut InstrMix) {
     mix.total += 1;
     if l.contains("\tfdiv") || l.contains(" fdiv ") {
         mix.fdiv += 1;
@@ -161,6 +212,54 @@ fn classify(l: &str, mix: &mut InstrMix) {
     } else if has_any(l, &["b.", "cbz", "cbnz", "tbz", "tbnz", "cmp", "ccmp"]) {
         mix.branch += 1;
     }
+}
+
+/// x86-64 (SSE/AVX). Best-effort heuristic — syntax varies (AT&T vs Intel):
+/// - SIMD: ymm/zmm operands (always vector) or packed mnemonics (`addpd`,
+///   `vmulps`, `paddd`).
+/// - scalar-FP: scalar SSE (`addsd`, `mulss`, `divsd`, `cvtsi2sd`).
+/// - mem: a mov-family op touching a memory operand (`(%…)` AT&T or `[…]` Intel).
+/// - branch: `j*` / `cmp` / `test` / `call`.
+fn classify_x86(l: &str, mix: &mut InstrMix) {
+    mix.total += 1;
+    let op = mnemonic(l);
+    let div = op.contains("div");
+    let packed = op.ends_with("pd") || op.ends_with("ps")
+        || (op.starts_with('p') && op.len() > 2)
+        || op.starts_with("vp");
+    let scalar_sse = op.ends_with("sd") || op.ends_with("ss");
+    let vec_reg = l.contains("ymm") || l.contains("zmm");
+    if div && (packed || scalar_sse) {
+        mix.fdiv += 1;
+    }
+    if vec_reg || (packed && (op.contains("add") || op.contains("mul") || op.contains("sub")
+        || op.contains("div") || op.contains("fmadd") || op.contains("max") || op.contains("min")
+        || op.contains("sqrt") || op.starts_with('p') || op.starts_with("vp")))
+    {
+        mix.simd += 1;
+    } else if scalar_sse
+        && (op.contains("add") || op.contains("mul") || op.contains("sub") || op.contains("div")
+            || op.contains("sqrt") || op.contains("cvt") || op.contains("com"))
+    {
+        mix.scalar_fp += 1;
+    } else if op.starts_with("mov") && (l.contains("(%") || l.contains('[')) {
+        mix.mem += 1;
+    } else if op.starts_with('j') || op == "call" || op == "cmp" || op == "test" {
+        mix.branch += 1;
+    }
+}
+
+/// Extract the instruction mnemonic (first token after the address/bytes).
+fn mnemonic(l: &str) -> String {
+    // objdump line: "<addr>:\t<bytes>\t<mnemonic> <operands>"
+    l.split('\t')
+        .nth(2)
+        .or_else(|| l.split('\t').nth(1))
+        .unwrap_or("")
+        .split_whitespace()
+        .next()
+        .unwrap_or("")
+        .to_lowercase()
 }
 
 fn has_any(l: &str, ops: &[&str]) -> bool {

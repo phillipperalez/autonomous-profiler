@@ -49,10 +49,12 @@ budget. Bench timing is always taken **serially/quiesced** so numbers are trustw
 
 **Drilling in — `ap asm`:** when a function is hot, disassemble it and read *why*. It
 shells out to `nm` + `objdump` to extract just that one function (Mach-O or ELF) and reports
-an instruction mix — scalar-FP vs NEON-SIMD, memory-bound, branch-heavy, `fdiv` — with a
-one-line verdict. Example: it flagged polars' `pairwise_sum` reduction as *"57% scalar-FP,
-NO NEON SIMD — the hot loop did not vectorize"*. (And to dispel a myth: ARM/Apple-Silicon
-**does** have SIMD — 128-bit NEON, on by default — it's just narrower than x86 AVX.)
+an architecture-aware instruction mix — scalar-FP vs SIMD, memory-bound, branch-heavy,
+`fdiv` — with a one-line verdict. Example: it flagged polars' `pairwise_sum` reduction as
+*"57% scalar-FP, NO NEON SIMD — the hot loop did not vectorize"*. Works on **ARM64**
+(Apple Silicon **and** Linux aarch64 — same NEON/ISA) and **x86-64** (SSE/AVX, best-effort);
+other arches still dump the disasm, minus the heuristic. (Myth-buster: ARM/Apple-Silicon
+**does** have SIMD — 128-bit NEON, on by default — just narrower than x86 AVX.)
 
 ```bash
 ap asm <binary> --fn <name-substring>   # disasm + why-hot instruction-mix read

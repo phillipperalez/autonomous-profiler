@@ -270,13 +270,13 @@ fn main() -> Result<()> {
         }
         Cmd::Asm(a) => {
             let r = ap_core::disasm::disassemble_fn(&a.bin, &a.func)?;
-            println!("# {}", r.demangled);
+            println!("# {}  [{:?}]", r.demangled, r.arch);
             let m = &r.mix;
             println!(
-                "instructions: {} · NEON-SIMD: {} · scalar-FP: {} · mem(ld/st): {} · branch/cmp: {} · fdiv: {}",
+                "instructions: {} · SIMD: {} · scalar-FP: {} · mem(ld/st): {} · branch/cmp: {} · fdiv: {}",
                 m.total, m.simd, m.scalar_fp, m.mem, m.branch, m.fdiv
             );
-            println!("why-hot: {}\n", m.why_hot());
+            println!("why-hot: {}\n", m.why_hot(r.arch));
             let n = if a.full { r.lines.len() } else { a.max_lines.min(r.lines.len()) };
             for line in &r.lines[..n] {
                 println!("{}", line.trim_end());
