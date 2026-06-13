@@ -15,9 +15,9 @@ const dataDir =
   (existsSync(liveData) ? liveData : resolve(__dirname, "demo-data"));
 
 export default defineConfig({
-  // GitHub Pages serves under /<repo>/. The app fetches via import.meta.env.BASE_URL
-  // so data URLs resolve under the subpath. Override with BASE_PATH for local/root.
-  base: process.env.BASE_PATH ?? "/autonomous-profiler/",
+  // Served at the apex custom domain https://autoperf.run/, so base is root.
+  // (For the bare github.io/<repo>/ project page, set BASE_PATH=/autonomous-profiler/.)
+  base: process.env.BASE_PATH ?? "/",
   plugins: [solid()],
   publicDir: dataDir,
   server: { port: 5180, fs: { allow: [resolve(__dirname), dataDir] } },

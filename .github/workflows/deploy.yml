@@ -39,6 +39,8 @@ jobs:
           cache-dependency-path: findings-viz/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
+      # Custom apex domain — persists the Pages domain across deploys.
+      - run: echo 'autoperf.run' > dist/CNAME
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
