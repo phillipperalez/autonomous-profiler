@@ -1,0 +1,200 @@
+[
+  {
+    "ts_ms": 1781378455289,
+    "run": "analyzer",
+    "iteration": 1,
+    "status": "working",
+    "function": "detect_multivariate_outliers",
+    "note": "optimizing detect_multivariate_outliers: hoist constant format! out of outlier loop + null-free contiguous-slice fast path in matrix extraction (avoid per-element ChunkedArray::get)"
+  },
+  {
+    "ts_ms": 1781378589209,
+    "run": "analyzer",
+    "iteration": 1,
+    "status": "accepted",
+    "function": "detect_multivariate_outliers",
+    "note": "flights-1m -9.6% (canonical) \u00b7 RAM 553MB \u00b7 hoisted constant format! out of per-outlier loop + null-free cont_slice matrix extraction; memory unchanged",
+    "commit": "d31f7ba"
+  },
+  {
+    "ts_ms": 1781378632346,
+    "run": "analyzer",
+    "iteration": 2,
+    "status": "working",
+    "function": "compute_pearson_correlation",
+    "note": "optimizing compute_pearson_correlation: null-free contiguous-slice fast path to avoid per-element Option iterator overhead"
+  },
+  {
+    "ts_ms": 1781378737990,
+    "run": "analyzer",
+    "iteration": 2,
+    "status": "accepted",
+    "function": "compute_pearson_correlation",
+    "note": "flights-1m -3.7% \u00b7 RAM 684MB \u00b7 null-free contiguous-slice fast path, slight RAM bump from rechunk",
+    "commit": "7979003"
+  },
+  {
+    "ts_ms": 1781378778920,
+    "run": "analyzer",
+    "iteration": 3,
+    "status": "working",
+    "function": "detect_univariate_outliers",
+    "note": "optimizing detect_univariate_outliers: null-free contiguous-slice fast path avoids per-element Option filter_map + intermediate Vec alloc"
+  },
+  {
+    "ts_ms": 1781378850596,
+    "run": "analyzer",
+    "iteration": 3,
+    "status": "rejected",
+    "function": "detect_univariate_outliers",
+    "note": "flights-1m only -0.6% (gate needs <=-3.0); univariate path is ~5% of total, fast path barely moves primary dataset"
+  },
+  {
+    "ts_ms": 1781378892370,
+    "run": "analyzer",
+    "iteration": 4,
+    "status": "working",
+    "function": "detect_univariate_outliers",
+    "note": "optimizing detect_univariate_outliers: null-free contiguous-slice read of batch column instead of Option filter_map collect"
+  },
+  {
+    "ts_ms": 1781378995237,
+    "run": "analyzer",
+    "iteration": 4,
+    "status": "accepted",
+    "function": "detect_univariate_outliers",
+    "note": "flights-1m -4.2% \u00b7 RAM 685MB \u00b7 null-free cont_slice read avoids Option filter_map collect; guard -4.8%",
+    "commit": "a349a1a"
+  },
+  {
+    "ts_ms": 1781379035417,
+    "run": "analyzer",
+    "iteration": 5,
+    "status": "working",
+    "function": "extract_numeric_matrix",
+    "note": "optimizing extract_numeric_matrix: add null-free contiguous-slice fast path (mirrors extract_numeric_matrix_with_indices) to avoid per-element ChunkedArray::get on 1M-row sample"
+  },
+  {
+    "ts_ms": 1781379102380,
+    "run": "analyzer",
+    "iteration": 5,
+    "status": "rejected",
+    "function": "extract_numeric_matrix",
+    "note": "flights-1m -9.4% but guard transactions_train regressed +11.2% (rechunk on null-bearing/small sample); over +2% ceiling"
+  },
+  {
+    "ts_ms": 1781379148674,
+    "run": "analyzer",
+    "iteration": 6,
+    "status": "working",
+    "function": "extract_numeric_matrix",
+    "note": "optimizing extract_numeric_matrix: add null-free contiguous-slice fast path (matches sibling _with_indices) to avoid 6M per-element ChunkedArray::get on the 1M-row stats sample"
+  },
+  {
+    "ts_ms": 1781379232314,
+    "run": "analyzer",
+    "iteration": 6,
+    "status": "rejected",
+    "function": "extract_numeric_matrix",
+    "note": "guard transactions_train +2.3% (>2.0% ceiling); flights-1m was -7.2% but guard regressed, likely null_count scan overhead on nulled sample columns"
+  },
+  {
+    "ts_ms": 1781379287356,
+    "run": "analyzer",
+    "iteration": 7,
+    "status": "working",
+    "function": "extract_numeric_matrix",
+    "note": "optimizing extract_numeric_matrix: add null-free contiguous-slice fast path (rechunk+cont_slice) to avoid per-element ChunkedArray::get on 1M-row sample"
+  },
+  {
+    "ts_ms": 1781379388157,
+    "run": "analyzer",
+    "iteration": 7,
+    "status": "accepted",
+    "function": "extract_numeric_matrix",
+    "note": "flights-1m -9.4% \u00b7 RAM 669MB \u00b7 null-free cont_slice sample extraction; tradeoff: rechunk copies to contiguous buffer, RAM well under ceiling",
+    "commit": "f2d0542"
+  },
+  {
+    "ts_ms": 1781379429714,
+    "run": "analyzer",
+    "iteration": 8,
+    "status": "working",
+    "function": "calculate_covariance_matrix",
+    "note": "optimizing calculate_covariance_matrix: exploit symmetry (compute upper triangle, mirror) + pre-center matrix once + contiguous row-slice access to cut redundant 2x work and bounds checks"
+  },
+  {
+    "ts_ms": 1781379492788,
+    "run": "analyzer",
+    "iteration": 8,
+    "status": "rejected",
+    "function": "calculate_covariance_matrix",
+    "note": "flights-1m 0.0% (290ms = baseline); covariance math not on critical path, dominant self-time is polars collect (non-editable)"
+  },
+  {
+    "ts_ms": 1781379543281,
+    "run": "analyzer",
+    "iteration": 9,
+    "status": "working",
+    "function": "calculate_covariance_matrix",
+    "note": "optimizing calculate_covariance_matrix: center once + exploit symmetry + contiguous slice access instead of O(ncols^2 * nrows) redundant indexed centering"
+  },
+  {
+    "ts_ms": 1781379660071,
+    "run": "analyzer",
+    "iteration": 9,
+    "status": "accepted",
+    "function": "calculate_covariance_matrix",
+    "note": "flights-1m -3.1% \u00b7 RAM 672MB \u00b7 center-once + symmetric upper-triangle accumulation; ~2x less centering work, no extra memory",
+    "commit": "9a8fa7f"
+  },
+  {
+    "ts_ms": 1781379736843,
+    "run": "analyzer",
+    "iteration": 10,
+    "status": "working",
+    "function": "build_top_anomalies",
+    "note": "optimizing build_top_anomalies: defer per-flag variables Vec<String> clone until after top-N truncation, eliminating ~79K identical column-name vector allocs/drops (the dominant drop_in_place hot path)"
+  },
+  {
+    "ts_ms": 1781379828912,
+    "run": "analyzer",
+    "iteration": 10,
+    "status": "accepted",
+    "function": "build_top_anomalies",
+    "note": "flights-1m -10.3% \u00b7 RAM 651MB \u00b7 trades nothing: defers ~80K identical column-name Vec<String> allocs/drops until after top-N truncation",
+    "commit": "786a622"
+  },
+  {
+    "ts_ms": 1781379869810,
+    "run": "analyzer",
+    "iteration": 11,
+    "status": "working",
+    "function": "mahalanobis_distances_vectorized",
+    "note": "optimizing mahalanobis_distances_vectorized: replace per-row ndarray .row(i).dot() with contiguous slice multiply-sum to avoid strided view + dispatch overhead"
+  },
+  {
+    "ts_ms": 1781379935417,
+    "run": "analyzer",
+    "iteration": 11,
+    "status": "rejected",
+    "function": "mahalanobis_distances_vectorized",
+    "note": "flights-1m +0.4% (253ms vs 252 baseline); per-row dot loop is negligible vs polars collect + ndarray BLAS dot \u2014 no measurable win"
+  },
+  {
+    "ts_ms": 1781379986829,
+    "run": "analyzer",
+    "iteration": 12,
+    "status": "working",
+    "function": "mahalanobis_distances_vectorized",
+    "note": "optimizing mahalanobis_distances_vectorized: fuse centering + quadratic form per row over contiguous slices, drop two large (n_rows x n_cols) intermediate matrix allocations"
+  },
+  {
+    "ts_ms": 1781380054926,
+    "run": "analyzer",
+    "iteration": 12,
+    "status": "rejected",
+    "function": "mahalanobis_distances_vectorized",
+    "note": "flights-1m +5.2% regression: fused scalar c\u1d40\u03a3\u207b\u00b9c loop loses to BLAS gemm dot; reverted"
+  }
+]

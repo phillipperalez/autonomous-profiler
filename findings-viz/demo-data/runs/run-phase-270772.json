@@ -1,0 +1,847 @@
+{
+  "id": "run-phase-270772",
+  "workload": "run_phase \u00b7 flights-1m.parquet (cpu)",
+  "backend": "samply",
+  "kind": "cpu",
+  "unit": "samples",
+  "total_weight": 428767,
+  "function_count": 286,
+  "duration_ms": 9259,
+  "created_at_ms": 1781379270772,
+  "git": {
+    "commit": "a349a1af1ee038f90809930f3fde5572ddb16876",
+    "short": "a349a1a",
+    "subject": "perf(philtool_core): detect_univariate_outliers \u2014 null-free contiguous-slice batch read avoids per-element Option filter_map collect (flights-1m -5.1%, RAM 654MB)",
+    "dirty": false
+  },
+  "crate_rollup": [
+    {
+      "name": "_platform_memmove",
+      "pct": 13.091492582218315
+    },
+    {
+      "name": "core",
+      "pct": 12.357760741848137
+    },
+    {
+      "name": "polars_arrow",
+      "pct": 12.277064233021665
+    },
+    {
+      "name": "polars_compute",
+      "pct": 12.2579396268836
+    },
+    {
+      "name": "philtool_core",
+      "pct": 12.248377323814566
+    },
+    {
+      "name": "__sysctl",
+      "pct": 5.606774775110957
+    },
+    {
+      "name": "polars_core",
+      "pct": 5.2643976798587575
+    },
+    {
+      "name": "polars_parquet",
+      "pct": 3.9961097752392325
+    }
+  ],
+  "hot_path": [
+    "std::sys::backtrace::__rust_begin_short_backtrace",
+    "run_phase::main",
+    "philtool_core::analysis::anomaly::analyze_anomalies",
+    "philtool_core::analysis::anomaly::multivariate::detect_multivariate_outliers",
+    "polars_core::chunked_array::ChunkedArray<T>::get",
+    "<polars_arrow::array::primitive::PrimitiveArray<T> as polars_arrow::array::Array>::len"
+  ],
+  "hotspots": [
+    {
+      "rank": 1,
+      "function": "_platform_memmove",
+      "crate_name": "_platform_memmove",
+      "self_pct": 13.091492582218315,
+      "total_pct": 13.091492582218315,
+      "neighbors": [
+        "<- concatenate::concatenate_primitive",
+        "<- quicksort::quicksort",
+        "<- 0x2ae47"
+      ],
+      "tags": [
+        "alloc/copy-heavy",
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 2,
+      "function": "polars_compute::cast::primitive_to::primitive_to_primitive_dyn",
+      "crate_name": "polars_compute",
+      "self_pct": 11.907166363082979,
+      "total_pct": 11.907166363082979,
+      "source": {
+        "file": "polars-compute-0.51.0/src/cast/primitive_to.rs",
+        "line": 194
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- Iterator>::try_fold"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 3,
+      "function": "<polars_arrow::trusted_len::TrustMyLength<I,J> as core::iter::traits::iterator::Iterator>::next",
+      "crate_name": "polars_arrow",
+      "self_pct": 10.439003001630256,
+      "total_pct": 10.439003001630256,
+      "neighbors": [
+        "<- FnMut<A> for &F>::call_mut",
+        "<- multivariate::detect_multivariate_outliers"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 4,
+      "function": "philtool_core::analysis::anomaly::multivariate::detect_multivariate_outliers",
+      "crate_name": "philtool_core",
+      "self_pct": 7.584072468263649,
+      "total_pct": 19.853906667257508,
+      "source": {
+        "file": "philtool-core/src/analysis/anomaly/multivariate.rs",
+        "line": 43
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- anomaly::analyze_anomalies",
+        "-> ChunkedArray<T>::get",
+        "-> Iterator>::next",
+        "-> ArrayBase<S,D>>::mean_axis"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 5,
+      "function": "__sysctl",
+      "crate_name": "__sysctl",
+      "self_pct": 5.606774775110957,
+      "total_pct": 5.606774775110957,
+      "neighbors": [
+        "<- 0x59bb"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 6,
+      "function": "core::slice::sort::stable::quicksort::quicksort",
+      "crate_name": "core",
+      "self_pct": 5.254368922981479,
+      "total_pct": 8.654817185091204,
+      "source": {
+        "file": "~/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/slice/sort/shared/pivot.rs",
+        "line": 37
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- quicksort::quicksort",
+        "<- drift::sort",
+        "-> quicksort::quicksort",
+        "-> _platform_memmove",
+        "-> smallsort::small_sort_general_with_scratch"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 7,
+      "function": "polars_core::chunked_array::ChunkedArray<T>::get",
+      "crate_name": "polars_core",
+      "self_pct": 5.04259889403802,
+      "total_pct": 6.880660125429429,
+      "source": {
+        "file": "polars-core-0.51.0/src/chunked_array/mod.rs",
+        "line": 516
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- multivariate::detect_multivariate_outliers",
+        "-> Array>::len"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 8,
+      "function": "core::ops::function::impls::<impl core::ops::function::FnMut<A> for &F>::call_mut",
+      "crate_name": "core",
+      "self_pct": 4.417784017893168,
+      "total_pct": 13.270377617680465,
+      "source": {
+        "file": "~/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/alloc/src/raw_vec/mod.rs",
+        "line": 512
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- join_context::{{closure}}",
+        "<- bridge_producer_consumer::helper",
+        "-> Iterator>::next",
+        "-> RawVec<T,A>::grow_one"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 9,
+      "function": "philtool_core::analysis::bivariate::correlation::compute_pearson_correlation",
+      "crate_name": "philtool_core",
+      "self_pct": 3.3717613529026256,
+      "total_pct": 11.349287608421356,
+      "source": {
+        "file": "philtool-core/src/analysis/bivariate/correlation.rs",
+        "line": 222
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- correlation::compute_correlation_pair",
+        "-> ChunkedArray<T>>::rechunk"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 10,
+      "function": "polars_parquet::arrow::read::deserialize::dictionary_encoded::required::decode",
+      "crate_name": "polars_parquet",
+      "self_pct": 3.2551479008412496,
+      "total_pct": 3.9480650329899456,
+      "source": {
+        "file": "polars-parquet-0.51.0/src/arrow/read/deserialize/dictionary_encoded/mod.rs",
+        "line": 243
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- dictionary_encoded::decode_dict_dispatch",
+        "-> unpack32::unpack",
+        "-> ChunkedDecoder<T>::next_into",
+        "-> HybridRleDecoder::next_chunk_length"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 11,
+      "function": "0x2b450",
+      "crate_name": "0x2b450",
+      "self_pct": 2.9155695284385224,
+      "total_pct": 2.9155695284385224,
+      "neighbors": [
+        "<- string::String>>",
+        "<- Drop>::drop"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 12,
+      "function": "0x2b68c",
+      "crate_name": "0x2b68c",
+      "self_pct": 1.957006952494012,
+      "total_pct": 1.957006952494012,
+      "neighbors": [
+        "<- string::String>>",
+        "<- anomaly::EnrichedAnomalyRecord>",
+        "<- Drop>::drop"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 13,
+      "function": ".Lgemm_beta_zero_05",
+      "crate_name": "<unknown>",
+      "self_pct": 1.8401602735285132,
+      "total_pct": 1.8401602735285132,
+      "neighbors": [
+        "<- inner_thread"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 14,
+      "function": "<polars_arrow::array::primitive::PrimitiveArray<T> as polars_arrow::array::Array>::len",
+      "crate_name": "polars_arrow",
+      "self_pct": 1.8380612313914084,
+      "total_pct": 1.8380612313914084,
+      "neighbors": [
+        "<- ChunkedArray<T>::get"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 15,
+      "function": "0x3192c",
+      "crate_name": "0x3192c",
+      "self_pct": 1.3685754733923086,
+      "total_pct": 1.3685754733923086,
+      "neighbors": [
+        "<- raw_vec::finish_grow",
+        "<- Clone>::clone",
+        "<- anomaly::analyze_anomalies"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 16,
+      "function": "<core::iter::adapters::map::Map<I,F> as core::iter::traits::iterator::Iterator>::next",
+      "crate_name": "core",
+      "self_pct": 1.1516744525581493,
+      "total_pct": 1.1516744525581493,
+      "source": {
+        "file": "/rust/deps/hashbrown-0.15.4/src/control/bitmask.rs",
+        "line": 0
+      },
+      "neighbors": [
+        "<- SpecFromIter<T,I>>::from_iter"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 17,
+      "function": "0x30174",
+      "crate_name": "0x30174",
+      "self_pct": 0.8897606392282988,
+      "total_pct": 0.8897606392282988,
+      "neighbors": [
+        "<- Clone>::clone"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 18,
+      "function": "ndarray::impl_ops::arithmetic_ops::<impl core::ops::arith::Sub<&ndarray::ArrayBase<S2,E>> for &ndarray::ArrayBase<S,D>>::sub",
+      "crate_name": "ndarray",
+      "self_pct": 0.8433484853078712,
+      "total_pct": 0.8433484853078712,
+      "source": {
+        "file": "~/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ptr/mod.rs",
+        "line": 1939
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- multivariate::detect_multivariate_outliers"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 19,
+      "function": "philtool_core::analysis::anomaly::univariate::detect_univariate_outliers",
+      "crate_name": "philtool_core",
+      "self_pct": 0.8368181319924342,
+      "total_pct": 2.443751501398195,
+      "source": {
+        "file": "philtool-core/src/analysis/anomaly/univariate.rs",
+        "line": 58
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- anomaly::analyze_anomalies",
+        "-> LazyFrame::collect_with_engine",
+        "-> Clone>::clone",
+        "-> RawVec<T,A>::grow_one"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 20,
+      "function": "ndarray::impl_methods::<impl ndarray::ArrayBase<S,D>>::zip_mut_with_same_shape",
+      "crate_name": "ndarray",
+      "self_pct": 0.8277222827316468,
+      "total_pct": 0.8277222827316468,
+      "source": {
+        "file": "ndarray-0.15.6/src/dimension/mod.rs",
+        "line": 416
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- ArrayBase<S,D>>::mean_axis"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 21,
+      "function": "0x2fee0",
+      "crate_name": "0x2fee0",
+      "self_pct": 0.7015465276012379,
+      "total_pct": 0.7015465276012379,
+      "neighbors": [
+        "<- Clone>::clone",
+        "<- anomaly::analyze_anomalies"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 22,
+      "function": "0x2b094",
+      "crate_name": "0x2b094",
+      "self_pct": 0.593329244088281,
+      "total_pct": 0.593329244088281,
+      "neighbors": [
+        "<- string::String>>"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 23,
+      "function": "0x2b0ec",
+      "crate_name": "0x2b0ec",
+      "self_pct": 0.5770033607996884,
+      "total_pct": 0.5770033607996884,
+      "neighbors": [
+        "<- Drop>::drop"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 24,
+      "function": "0x3a044",
+      "crate_name": "0x3a044",
+      "self_pct": 0.46132281635480343,
+      "total_pct": 0.46132281635480343,
+      "neighbors": [
+        "<- anomaly::analyze_anomalies",
+        "<- Clone>::clone"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 25,
+      "function": "<alloc::string::String as core::clone::Clone>::clone",
+      "crate_name": "alloc",
+      "self_pct": 0.4594570011218214,
+      "total_pct": 3.6143173331902876,
+      "source": {
+        "file": "/rustc/1159e78c4747b02ef996e55082b704c09b970588/library/alloc/src/string.rs",
+        "line": 2308
+      },
+      "neighbors": [
+        "<- anomaly::analyze_anomalies",
+        "<- univariate::detect_univariate_outliers",
+        "<- multivariate::detect_multivariate_outliers",
+        "-> 0x30174",
+        "-> 0x2fee0",
+        "-> 0x3192c"
+      ],
+      "tags": [
+        "alloc/copy-heavy"
+      ]
+    },
+    {
+      "rank": 26,
+      "function": "core::slice::sort::stable::drift::sort",
+      "crate_name": "core",
+      "self_pct": 0.45642505136822564,
+      "total_pct": 9.111242236459429,
+      "source": {
+        "file": "~/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/slice/sort/stable/drift.rs",
+        "line": 270
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- stable::driftsort_main",
+        "-> quicksort::quicksort"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 27,
+      "function": "philtool_core::analysis::anomaly::analyze_anomalies",
+      "crate_name": "philtool_core",
+      "self_pct": 0.4557253706558574,
+      "total_pct": 41.45351671187382,
+      "source": {
+        "file": "philtool-core/src/analysis/anomaly/mod.rs",
+        "line": 171
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- run_phase::main",
+        "-> multivariate::detect_multivariate_outliers",
+        "-> anomaly::EnrichedAnomalyRecord>",
+        "-> Clone>::clone"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 28,
+      "function": "0x2b130",
+      "crate_name": "0x2b130",
+      "self_pct": 0.4536263285187526,
+      "total_pct": 0.4536263285187526,
+      "neighbors": [
+        "<- string::String>>"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 29,
+      "function": "core::hash::BuildHasher::hash_one",
+      "crate_name": "core",
+      "self_pct": 0.45012792495691134,
+      "total_pct": 0.8139618953884045,
+      "source": {
+        "file": "~/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/hash/sip.rs",
+        "line": 232
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- anomaly::analyze_anomalies",
+        "<- RawTable<T,A>::reserve_rehash",
+        "<- HashMap<K,V,S,A>>::rustc_entry",
+        "-> Hasher>::write"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 30,
+      "function": "<alloc::vec::Vec<T> as alloc::vec::spec_from_iter::SpecFromIter<T,I>>::from_iter",
+      "crate_name": "alloc",
+      "self_pct": 0.43753367213428274,
+      "total_pct": 14.136582339592366,
+      "source": {
+        "file": "polars-mem-engine-0.51.0/src/executors/join.rs",
+        "line": 86
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- adapters::try_process",
+        "<- anomaly::analyze_anomalies",
+        "<- multivariate::detect_multivariate_outliers",
+        "-> Iterator>::try_fold",
+        "-> Iterator>::next",
+        "-> PhysicalExpr>::evaluate"
+      ],
+      "tags": [
+        "alloc/copy-heavy"
+      ]
+    },
+    {
+      "rank": 31,
+      "function": "0x2b0e4",
+      "crate_name": "0x2b0e4",
+      "self_pct": 0.38225889585719053,
+      "total_pct": 0.38225889585719053,
+      "neighbors": [
+        "<- Drop>::drop",
+        "<- string::String>>"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 32,
+      "function": "polars_parquet::parquet::encoding::bitpacked::unpack::unpack32::unpack",
+      "crate_name": "polars_parquet",
+      "self_pct": 0.3645336511438613,
+      "total_pct": 0.3645336511438613,
+      "source": {
+        "file": "polars-parquet-0.51.0/src/parquet/encoding/bitpacked/unpack.rs",
+        "line": 88
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- required::decode"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 33,
+      "function": "<core::hash::sip::Hasher<S> as core::hash::Hasher>::write",
+      "crate_name": "core",
+      "self_pct": 0.36383397043149307,
+      "total_pct": 0.36383397043149307,
+      "neighbors": [
+        "<- BuildHasher::hash_one"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 34,
+      "function": "0x268cd80",
+      "crate_name": "0x268cd80",
+      "self_pct": 0.3559042556913195,
+      "total_pct": 0.3559042556913195,
+      "neighbors": [
+        "<- anomaly::Phase5Results>"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 35,
+      "function": "0x268cd7c",
+      "crate_name": "0x268cd7c",
+      "self_pct": 0.3423770952521999,
+      "total_pct": 0.3423770952521999,
+      "neighbors": [
+        "<- string::String>>"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 36,
+      "function": "snap::decompress::Decoder::decompress",
+      "crate_name": "snap",
+      "self_pct": 0.322552808401766,
+      "total_pct": 0.5653420155935508,
+      "source": {
+        "file": "~/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ptr/mut_ptr.rs",
+        "line": 1008
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- compression::decompress",
+        "-> _platform_memmove"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 37,
+      "function": "0x2b374",
+      "crate_name": "0x2b374",
+      "self_pct": 0.3041278829760686,
+      "total_pct": 0.3041278829760686,
+      "neighbors": [
+        "<- Drop>::drop"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 38,
+      "function": ".Ldgemm_ncopy_L4_M4_20",
+      "crate_name": "<unknown>",
+      "self_pct": 0.29643139514001776,
+      "total_pct": 0.29643139514001776,
+      "neighbors": [
+        "<- inner_thread"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 39,
+      "function": "0x2b318",
+      "crate_name": "0x2b318",
+      "self_pct": 0.28243778089265265,
+      "total_pct": 0.28243778089265265,
+      "neighbors": [
+        "<- Drop>::drop"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 40,
+      "function": "ndarray::numeric::impl_numeric::<impl ndarray::ArrayBase<S,D>>::mean_axis",
+      "crate_name": "ndarray",
+      "self_pct": 0.27754001590607486,
+      "total_pct": 1.1052622986377216,
+      "source": {
+        "file": "ndarray-0.15.6/src/iterators/mod.rs",
+        "line": 880
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- multivariate::detect_multivariate_outliers",
+        "-> ArrayBase<S,D>>::zip_mut_with_same_shape"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 41,
+      "function": "swtch_pri",
+      "crate_name": "swtch_pri",
+      "self_pct": 0.2686773935494103,
+      "total_pct": 0.2686773935494103,
+      "neighbors": [
+        "<- cthread_yield"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 42,
+      "function": "<alloc::vec::Vec<T,A> as core::ops::drop::Drop>::drop",
+      "crate_name": "alloc",
+      "self_pct": 0.2558499138226589,
+      "total_pct": 2.4614767461115243,
+      "source": {
+        "file": "~/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ptr/mod.rs",
+        "line": 804
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- anomaly::EnrichedAnomalyRecord>",
+        "<- Arc<T,A>::drop_slow",
+        "-> 0x2b0ec",
+        "-> 0x2b450",
+        "-> 0x2b374"
+      ],
+      "tags": [
+        "alloc/copy-heavy"
+      ]
+    },
+    {
+      "rank": 43,
+      "function": "0x2b19c",
+      "crate_name": "0x2b19c",
+      "self_pct": 0.2413898457670483,
+      "total_pct": 0.2413898457670483,
+      "neighbors": [
+        "<- string::String>>"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 44,
+      "function": "<alloc::vec::into_iter::IntoIter<T,A> as core::ops::drop::Drop>::drop",
+      "crate_name": "alloc",
+      "self_pct": 0.23649208078047051,
+      "total_pct": 0.23649208078047051,
+      "source": {
+        "file": "~/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/alloc/src/vec/into_iter.rs",
+        "line": 487
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- execute::run_subgraph"
+      ],
+      "tags": [
+        "alloc/copy-heavy",
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 45,
+      "function": "0x2a15c",
+      "crate_name": "0x2a15c",
+      "self_pct": 0.23229399650626098,
+      "total_pct": 0.23229399650626098,
+      "neighbors": [
+        "<- Clone>::clone"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 46,
+      "function": "0x2b148",
+      "crate_name": "0x2b148",
+      "self_pct": 0.23182754269801548,
+      "total_pct": 0.23182754269801548,
+      "neighbors": [
+        "<- anomaly::Phase5Results>"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 47,
+      "function": "__rustc::__rust_no_alloc_shim_is_unstable_v2",
+      "crate_name": "__rustc",
+      "self_pct": 0.23182754269801548,
+      "total_pct": 0.23182754269801548,
+      "neighbors": [
+        "<- Clone>::clone"
+      ],
+      "tags": [
+        "alloc/copy-heavy",
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 48,
+      "function": "0x3a088",
+      "crate_name": "0x3a088",
+      "self_pct": 0.23066140817740172,
+      "total_pct": 0.23066140817740172,
+      "neighbors": [
+        "<- Clone>::clone"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 49,
+      "function": "0x2b2f8",
+      "crate_name": "0x2b2f8",
+      "self_pct": 0.2297285005609107,
+      "total_pct": 0.2297285005609107,
+      "neighbors": [
+        "<- string::String>>"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 50,
+      "function": "0x427f8",
+      "crate_name": "0x427f8",
+      "self_pct": 0.22902881984854245,
+      "total_pct": 0.22902881984854245,
+      "neighbors": [
+        "<- 0x2b1cb"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    }
+  ]
+}

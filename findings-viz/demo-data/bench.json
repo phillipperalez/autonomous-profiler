@@ -1,0 +1,308 @@
+[
+  {
+    "label": "flights-1m",
+    "runs": 5,
+    "min_ms": 384,
+    "median_ms": 392,
+    "mean_ms": 571,
+    "samples_ms": [
+      1278,
+      386,
+      392,
+      384,
+      416
+    ],
+    "peak_rss_bytes": 565919744,
+    "created_at_ms": 1781378276357,
+    "git": {
+      "commit": "8c8f4cb126140c76367807d5b29d20a38298dc3a",
+      "short": "8c8f4cb",
+      "subject": "Add .cargo/config.toml for openblas pkg-config path",
+      "dirty": false
+    }
+  },
+  {
+    "label": "transactions_train",
+    "runs": 3,
+    "min_ms": 1542,
+    "median_ms": 1558,
+    "mean_ms": 1958,
+    "samples_ms": [
+      2776,
+      1558,
+      1542
+    ],
+    "peak_rss_bytes": 1771487232,
+    "created_at_ms": 1781378282739,
+    "git": {
+      "commit": "8c8f4cb126140c76367807d5b29d20a38298dc3a",
+      "short": "8c8f4cb",
+      "subject": "Add .cargo/config.toml for openblas pkg-config path",
+      "dirty": false
+    }
+  },
+  {
+    "label": "flights-1m",
+    "runs": 5,
+    "min_ms": 347,
+    "median_ms": 355,
+    "mean_ms": 632,
+    "samples_ms": [
+      1748,
+      353,
+      347,
+      358,
+      355
+    ],
+    "peak_rss_bytes": 580255744,
+    "created_at_ms": 1781378559770,
+    "git": {
+      "commit": "d31f7ba33c79e0b82f784298214b794c730de57e",
+      "short": "d31f7ba",
+      "subject": "perf(philtool_core): detect_multivariate_outliers \u2014 hoist constant label format! out of outlier loop + null-free contiguous-slice matrix extraction (flights-1m -11.7%, RAM 553MB)",
+      "dirty": false
+    }
+  },
+  {
+    "label": "transactions_train",
+    "runs": 5,
+    "min_ms": 1552,
+    "median_ms": 1583,
+    "mean_ms": 1819,
+    "samples_ms": [
+      2785,
+      1583,
+      1552,
+      1571,
+      1607
+    ],
+    "peak_rss_bytes": 1770389504,
+    "created_at_ms": 1781378572441,
+    "git": {
+      "commit": "d31f7ba33c79e0b82f784298214b794c730de57e",
+      "short": "d31f7ba",
+      "subject": "perf(philtool_core): detect_multivariate_outliers \u2014 hoist constant label format! out of outlier loop + null-free contiguous-slice matrix extraction (flights-1m -11.7%, RAM 553MB)",
+      "dirty": false
+    }
+  },
+  {
+    "label": "flights-1m",
+    "runs": 5,
+    "min_ms": 334,
+    "median_ms": 339,
+    "mean_ms": 598,
+    "samples_ms": [
+      1642,
+      334,
+      339,
+      337,
+      341
+    ],
+    "peak_rss_bytes": 716800000,
+    "created_at_ms": 1781378711788,
+    "git": {
+      "commit": "79790031b06b0d424c547d7e43036c217a6af95b",
+      "short": "7979003",
+      "subject": "perf(philtool_core): compute_pearson_correlation \u2014 null-free contiguous-slice fast path avoids per-element Option iterator overhead (flights-1m -3.2%, RAM 669MB)",
+      "dirty": false
+    }
+  },
+  {
+    "label": "transactions_train",
+    "runs": 5,
+    "min_ms": 1514,
+    "median_ms": 1525,
+    "mean_ms": 1775,
+    "samples_ms": [
+      2783,
+      1536,
+      1525,
+      1518,
+      1514
+    ],
+    "peak_rss_bytes": 1767194624,
+    "created_at_ms": 1781378723047,
+    "git": {
+      "commit": "79790031b06b0d424c547d7e43036c217a6af95b",
+      "short": "7979003",
+      "subject": "perf(philtool_core): compute_pearson_correlation \u2014 null-free contiguous-slice fast path avoids per-element Option iterator overhead (flights-1m -3.2%, RAM 669MB)",
+      "dirty": false
+    }
+  },
+  {
+    "label": "flights-1m",
+    "runs": 5,
+    "min_ms": 320,
+    "median_ms": 328,
+    "mean_ms": 594,
+    "samples_ms": [
+      1664,
+      320,
+      328,
+      332,
+      328
+    ],
+    "peak_rss_bytes": 718471168,
+    "created_at_ms": 1781378972802,
+    "git": {
+      "commit": "a349a1af1ee038f90809930f3fde5572ddb16876",
+      "short": "a349a1a",
+      "subject": "perf(philtool_core): detect_univariate_outliers \u2014 null-free contiguous-slice batch read avoids per-element Option filter_map collect (flights-1m -5.1%, RAM 654MB)",
+      "dirty": false
+    }
+  },
+  {
+    "label": "transactions_train",
+    "runs": 5,
+    "min_ms": 1442,
+    "median_ms": 1454,
+    "mean_ms": 1700,
+    "samples_ms": [
+      2697,
+      1462,
+      1445,
+      1442,
+      1454
+    ],
+    "peak_rss_bytes": 1530265600,
+    "created_at_ms": 1781378983432,
+    "git": {
+      "commit": "a349a1af1ee038f90809930f3fde5572ddb16876",
+      "short": "a349a1a",
+      "subject": "perf(philtool_core): detect_univariate_outliers \u2014 null-free contiguous-slice batch read avoids per-element Option filter_map collect (flights-1m -5.1%, RAM 654MB)",
+      "dirty": false
+    }
+  },
+  {
+    "label": "flights-1m",
+    "runs": 5,
+    "min_ms": 290,
+    "median_ms": 295,
+    "mean_ms": 544,
+    "samples_ms": [
+      1533,
+      311,
+      295,
+      293,
+      290
+    ],
+    "peak_rss_bytes": 701726720,
+    "created_at_ms": 1781379360712,
+    "git": {
+      "commit": "f2d0542ec44d61f3be340ccbccde6a03c7e52660",
+      "short": "f2d0542",
+      "subject": "perf(philtool_core): extract_numeric_matrix \u2014 null-free contiguous-slice fast path avoids per-element ChunkedArray::get on 1M-row sample (flights-1m -11.9%, RAM 652MB)",
+      "dirty": false
+    }
+  },
+  {
+    "label": "transactions_train",
+    "runs": 5,
+    "min_ms": 1455,
+    "median_ms": 1466,
+    "mean_ms": 1730,
+    "samples_ms": [
+      2799,
+      1470,
+      1466,
+      1455,
+      1462
+    ],
+    "peak_rss_bytes": 1530167296,
+    "created_at_ms": 1781379371627,
+    "git": {
+      "commit": "f2d0542ec44d61f3be340ccbccde6a03c7e52660",
+      "short": "f2d0542",
+      "subject": "perf(philtool_core): extract_numeric_matrix \u2014 null-free contiguous-slice fast path avoids per-element ChunkedArray::get on 1M-row sample (flights-1m -11.9%, RAM 652MB)",
+      "dirty": false
+    }
+  },
+  {
+    "label": "flights-1m",
+    "runs": 5,
+    "min_ms": 281,
+    "median_ms": 290,
+    "mean_ms": 549,
+    "samples_ms": [
+      1588,
+      302,
+      290,
+      281,
+      284
+    ],
+    "peak_rss_bytes": 695287808,
+    "created_at_ms": 1781379626923,
+    "git": {
+      "commit": "9a8fa7f8a57a7f44a8512d4b78653d2e97fb23a8",
+      "short": "9a8fa7f",
+      "subject": "perf(philtool_core): calculate_covariance_matrix \u2014 center each row once + symmetric upper-triangle accumulation over contiguous slices, avoiding O(ncols^2*nrows) redundant centering (flights-1m -4.8%, RAM 672MB)",
+      "dirty": false
+    }
+  },
+  {
+    "label": "transactions_train",
+    "runs": 5,
+    "min_ms": 1462,
+    "median_ms": 1474,
+    "mean_ms": 1754,
+    "samples_ms": [
+      2878,
+      1486,
+      1462,
+      1474,
+      1471
+    ],
+    "peak_rss_bytes": 1528037376,
+    "created_at_ms": 1781379638307,
+    "git": {
+      "commit": "9a8fa7f8a57a7f44a8512d4b78653d2e97fb23a8",
+      "short": "9a8fa7f",
+      "subject": "perf(philtool_core): calculate_covariance_matrix \u2014 center each row once + symmetric upper-triangle accumulation over contiguous slices, avoiding O(ncols^2*nrows) redundant centering (flights-1m -4.8%, RAM 672MB)",
+      "dirty": false
+    }
+  },
+  {
+    "label": "flights-1m",
+    "runs": 5,
+    "min_ms": 252,
+    "median_ms": 286,
+    "mean_ms": 529,
+    "samples_ms": [
+      1538,
+      315,
+      252,
+      286,
+      256
+    ],
+    "peak_rss_bytes": 682590208,
+    "created_at_ms": 1781379804624,
+    "git": {
+      "commit": "786a6223fe89b92153324c8a5b67b319abf2d12a",
+      "short": "786a622",
+      "subject": "perf(philtool_core): build_top_anomalies \u2014 defer identical per-flag variables Vec<String> until after top-N truncation, eliminating ~80K column-name vector allocs/drops (flights-1m -10.3%, RAM 651MB)",
+      "dirty": false
+    }
+  },
+  {
+    "label": "transactions_train",
+    "runs": 5,
+    "min_ms": 1451,
+    "median_ms": 1469,
+    "mean_ms": 1708,
+    "samples_ms": [
+      2666,
+      1451,
+      1469,
+      1467,
+      1487
+    ],
+    "peak_rss_bytes": 1530626048,
+    "created_at_ms": 1781379816129,
+    "git": {
+      "commit": "786a6223fe89b92153324c8a5b67b319abf2d12a",
+      "short": "786a622",
+      "subject": "perf(philtool_core): build_top_anomalies \u2014 defer identical per-flag variables Vec<String> until after top-N truncation, eliminating ~80K column-name vector allocs/drops (flights-1m -10.3%, RAM 651MB)",
+      "dirty": false
+    }
+  }
+]
