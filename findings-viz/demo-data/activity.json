@@ -381,5 +381,38 @@
     "status": "info",
     "function": "gather_idx_array_unchecked",
     "note": "lens=algorithmic: built=true fp=true min=495ms pct=4.43%"
+  },
+  {
+    "ts_ms": 1781386196112,
+    "run": "swarm-analyzer",
+    "iteration": 1,
+    "status": "info",
+    "function": "detect_conditional_outliers",
+    "note": "lens=locality: tests=ok flights=5.16% txn=12.61%"
+  },
+  {
+    "ts_ms": 1781386267153,
+    "run": "swarm-analyzer",
+    "iteration": 2,
+    "status": "info",
+    "function": "detect_conditional_outliers",
+    "note": "lens=dedup: tests=ok flights=0.40% txn=-0.76%"
+  },
+  {
+    "ts_ms": 1781386340769,
+    "run": "swarm-analyzer",
+    "iteration": 3,
+    "status": "info",
+    "function": "ExactQuantileCalculator::quantiles",
+    "note": "lens=algorithmic: tests=ok flights=-6.75% txn=-11.58%"
+  },
+  {
+    "ts_ms": 1781386425309,
+    "run": "swarm-analyzer",
+    "iteration": 3,
+    "status": "accepted",
+    "function": "ExactQuantileCalculator::quantiles",
+    "note": "swarm winner [algorithmic] flights -6.746031746031746%",
+    "commit": "1c99b0e"
   }
 ]

@@ -374,5 +374,47 @@
       "subject": "perf(sort): resolve_chunked_idx — branch-light linear scan over cumlens for small chunk counts in the per-element gather hot path; nyc-taxi columns have 3 chunks so the post-sort gather binary-searched cumlens once per element (polars-taxi -4.0%, RAM 1390MB) [autoperf]",
       "dirty": false
     }
+  },
+  {
+    "label": "flights-1m",
+    "runs": 5,
+    "min_ms": 235,
+    "median_ms": 240,
+    "mean_ms": 409,
+    "samples_ms": [
+      1086,
+      235,
+      238,
+      240,
+      249
+    ],
+    "peak_rss_bytes": 660930560,
+    "created_at_ms": 1781386402139,
+    "git": {
+      "commit": "1c99b0ecd8fee5567a23e293b63a84c829b643ac",
+      "short": "1c99b0e",
+      "subject": "perf(philtool_core): ExactQuantileCalculator::quantiles — swarm winner [algorithmic] (flights -6.746031746031746%) [autoperf]",
+      "dirty": false
+    }
+  },
+  {
+    "label": "transactions_train",
+    "runs": 3,
+    "min_ms": 1296,
+    "median_ms": 1310,
+    "mean_ms": 1781,
+    "samples_ms": [
+      2737,
+      1296,
+      1310
+    ],
+    "peak_rss_bytes": 1402486784,
+    "created_at_ms": 1781386410783,
+    "git": {
+      "commit": "1c99b0ecd8fee5567a23e293b63a84c829b643ac",
+      "short": "1c99b0e",
+      "subject": "perf(philtool_core): ExactQuantileCalculator::quantiles — swarm winner [algorithmic] (flights -6.746031746031746%) [autoperf]",
+      "dirty": false
+    }
   }
 ]
