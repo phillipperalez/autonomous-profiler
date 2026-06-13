@@ -19,3 +19,6 @@ autonomous-profiler/data/
 # OS / editor
 .DS_Store
 *.swp
+
+# External polars clone (improver target) — not part of this repo
+/polars/

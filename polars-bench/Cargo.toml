@@ -1,0 +1,15 @@
+[package]
+name = "polars-bench"
+version = "0.1.0"
+edition = "2021"
+
+# Standalone harness that exercises the polars hot paths the analyzer's taxi
+# workload hits (parquet decode -> numeric cast -> arrow reduction). Depends on a
+# LOCAL polars checkout so the auto-improve loop can edit + rebuild polars.
+[dependencies]
+polars = { path = "../polars/crates/polars", default-features = false, features = ["parquet"] }
+
+# Profiling profile (release codegen + line tables) so samply symbolicates polars.
+[profile.profiling]
+inherits = "release"
+debug = 1

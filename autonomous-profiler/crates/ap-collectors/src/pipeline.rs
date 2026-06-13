@@ -483,6 +483,40 @@ pub fn append_bench(dir: &Path, rec: &BenchRecord) -> Result<PathBuf> {
     Ok(path)
 }
 
+// --- activity feed (what the auto-improve loop is doing) -----------------
+
+/// One event in the loop's activity log: an iteration starting, or its verdict.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ActivityEntry {
+    pub ts_ms: u128,
+    pub run: String,
+    pub iteration: u32,
+    /// working | accepted | rejected | error | info
+    pub status: String,
+    pub function: String,
+    pub note: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub commit: String,
+}
+
+/// Append an activity event to `<dir>/activity.json` (capped to the last 300).
+pub fn append_activity(dir: &Path, entry: ActivityEntry) -> Result<PathBuf> {
+    std::fs::create_dir_all(dir).with_context(|| format!("creating {}", dir.display()))?;
+    let path = dir.join("activity.json");
+    let mut log: Vec<ActivityEntry> = std::fs::read(&path)
+        .ok()
+        .and_then(|b| serde_json::from_slice(&b).ok())
+        .unwrap_or_default();
+    log.push(entry);
+    let n = log.len();
+    if n > 300 {
+        log.drain(0..n - 300);
+    }
+    std::fs::write(&path, serde_json::to_string_pretty(&log)?)
+        .with_context(|| format!("writing {}", path.display()))?;
+    Ok(path)
+}
+
 /// Newest cached profile id by mtime, if any.
 pub fn latest_id() -> Option<String> {
     let dir = cache_dir();

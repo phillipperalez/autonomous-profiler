@@ -120,6 +120,41 @@ body {
     opacity: 0.25;
   }
 }
+.tab {
+  background: transparent;
+  border: 1px solid var(--border-dim);
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 3px 14px;
+  cursor: pointer;
+  text-transform: lowercase;
+}
+.tab:hover {
+  color: var(--fg);
+}
+.tab.active {
+  color: var(--blue);
+  border-bottom-color: var(--blue);
+}
+.tab-count {
+  margin-left: 6px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.running {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--orange);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 11px;
+}
+.live-dot.run {
+  background: var(--orange);
+}
 .chip {
   border: 1px solid var(--border);
   padding: 1px 8px;
@@ -630,6 +665,87 @@ body {
   margin: 0;
   white-space: pre;
   color: var(--fg);
+}
+
+/* Activity feed */
+.activity {
+  padding: 14px 16px;
+}
+.feed {
+  display: flex;
+  flex-direction: column;
+}
+.feed-row {
+  display: grid;
+  grid-template-columns: 110px 110px 260px auto 1fr 130px;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px;
+  border-bottom: 1px solid var(--border-dim);
+  font-size: 12px;
+}
+.feed-row:hover {
+  background: var(--panel-2);
+}
+.feed-row.accepted {
+  border-left: 2px solid var(--green);
+}
+.feed-row.rejected {
+  border-left: 2px solid var(--pink);
+}
+.feed-row.working {
+  border-left: 2px solid var(--orange);
+}
+.feed-row.error {
+  border-left: 2px solid var(--pink);
+}
+.feed-row.info {
+  border-left: 2px solid var(--border);
+}
+.feed-status {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.feed-status.accepted {
+  color: var(--green);
+}
+.feed-status.rejected {
+  color: var(--pink);
+}
+.feed-status.working {
+  color: var(--orange);
+}
+.feed-status.error {
+  color: var(--pink);
+}
+.feed-status.info {
+  color: var(--muted);
+}
+.feed-iter {
+  color: var(--blue);
+  font-size: 11px;
+}
+.feed-fn {
+  color: var(--fg);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.feed-commit {
+  color: var(--yellow);
+  font-size: 11px;
+}
+.feed-note {
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.feed-time {
+  text-align: right;
 }
 
 /* Scrollbars — thin, flat */

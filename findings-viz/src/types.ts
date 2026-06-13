@@ -38,6 +38,16 @@ export interface CrateShare {
   pct: number;
 }
 
+export interface ActivityEntry {
+  ts_ms: number;
+  run: string;
+  iteration: number;
+  status: string; // working | accepted | rejected | error | info
+  function: string;
+  note: string;
+  commit?: string;
+}
+
 export interface SourceLoc {
   file: string;
   line: number;

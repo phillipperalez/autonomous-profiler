@@ -7,7 +7,13 @@ import {
   onMount,
   onCleanup,
 } from "solid-js";
-import type { IndexEntry, RunFindings, Hotspot, BenchRecord } from "./types";
+import type {
+  IndexEntry,
+  RunFindings,
+  Hotspot,
+  BenchRecord,
+  ActivityEntry,
+} from "./types";
 import {
   shortFn,
   basename,
@@ -17,6 +23,7 @@ import {
   crateColor,
 } from "./util";
 import { BenchTimeline } from "./BenchTimeline";
+import { ActivityFeed } from "./ActivityFeed";
 
 const base = import.meta.env.BASE_URL;
 
@@ -46,6 +53,16 @@ export default function App() {
   const [bench] = createResource(tick, () =>
     getJSON<BenchRecord[]>("bench.json", []),
   );
+  const [activity] = createResource(tick, () =>
+    getJSON<ActivityEntry[]>("activity.json", []),
+  );
+
+  const [view, setView] = createSignal<"findings" | "activity">("findings");
+  // Loop is "working" if the most recent activity event is a working status.
+  const working = () => {
+    const a = activity();
+    return !!a && a.length > 0 && a[a.length - 1].status === "working";
+  };
 
   const [selected, setSelected] = createSignal<string | null>(null);
   const currentId = createMemo(() => {
@@ -73,17 +90,39 @@ export default function App() {
           <span class="muted">findings</span>
         </div>
         <div class="bar-center">
+          <button
+            class="tab"
+            classList={{ active: view() === "findings" }}
+            onClick={() => setView("findings")}
+          >
+            timeline
+          </button>
+          <button
+            class="tab"
+            classList={{ active: view() === "activity" }}
+            onClick={() => setView("activity")}
+          >
+            activity
+            <Show when={(activity()?.length ?? 0) > 0}>
+              <span class="tab-count">{activity()!.length}</span>
+            </Show>
+          </button>
+        </div>
+        <div class="bar-right">
+          <Show when={working()}>
+            <span class="running">
+              <span class="live-dot run" />
+              running
+            </span>
+          </Show>
           <span class="live">
             <span class="live-dot" />
             live
           </span>
           <span class="chip">{runCount()} runs</span>
-          <span class="chip">{bench()?.length ?? 0} benchmarks</span>
-        </div>
-        <div class="bar-right">
+          <span class="chip">{bench()?.length ?? 0} bench</span>
           <Show when={latestCommit()?.short}>
             <span class="chip commit">
-              <span class="git-glyph"></span>
               {latestCommit()!.short}
               {latestCommit()!.dirty ? "*" : ""}
             </span>
@@ -137,26 +176,31 @@ export default function App() {
         </aside>
 
         <main class="main">
-          <Show when={bench() && bench()!.length > 0}>
-            <BenchTimeline records={bench()!} />
-          </Show>
-
           <Show
-            when={run()}
-            fallback={
-              <div class="win pad muted">
-                <Show when={runCount() === 0} fallback={<>select a run</>}>
-                  <p>no findings yet — run the profiler:</p>
-                  <pre class="snippet">
-                    ap run ../analyzer --example run_phase \{"\n"} --args
-                    parquet/flights-1m.parquet
-                  </pre>
-                  <p class="small">this view updates live as runs land.</p>
-                </Show>
-              </div>
-            }
+            when={view() === "findings"}
+            fallback={<ActivityFeed entries={activity() ?? []} />}
           >
-            {(r) => <RunView run={r()!} />}
+            <Show when={bench() && bench()!.length > 0}>
+              <BenchTimeline records={bench()!} />
+            </Show>
+
+            <Show
+              when={run()}
+              fallback={
+                <div class="win pad muted">
+                  <Show when={runCount() === 0} fallback={<>select a run</>}>
+                    <p>no findings yet — run the profiler:</p>
+                    <pre class="snippet">
+                      ap run ../analyzer --example run_phase \{"\n"} --args
+                      parquet/flights-1m.parquet
+                    </pre>
+                    <p class="small">this view updates live as runs land.</p>
+                  </Show>
+                </div>
+              }
+            >
+              {(r) => <RunView run={r()!} />}
+            </Show>
           </Show>
         </main>
       </div>

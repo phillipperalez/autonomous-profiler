@@ -32,6 +32,8 @@ enum Cmd {
     /// Benchmark the workload (no profiler attached) and append a commit-tagged
     /// point to bench.json. The commit-gating metric for the auto-improve loop.
     Bench(BenchArgs),
+    /// Append an event to the dashboard activity feed (what the loop is doing).
+    Activity(ActivityArgs),
 }
 
 #[derive(Copy, Clone, ValueEnum)]
@@ -87,6 +89,10 @@ struct ProfileArgs {
     /// Explicit cache id (default: derived from name + timestamp).
     #[arg(long)]
     id: Option<String>,
+    /// Git repo to stamp the run with (default: the target dir). Use when the
+    /// build dir differs from the edited repo (e.g. a polars harness).
+    #[arg(long)]
+    repo: Option<PathBuf>,
     /// Where to write dashboard findings (runs/<id>.json + index.json).
     #[arg(long, default_value = "data")]
     findings_dir: PathBuf,
@@ -127,6 +133,29 @@ struct BenchArgs {
     /// Also measure detailed heap peak via dhat (slower; peak RSS is always measured).
     #[arg(long, default_value_t = false)]
     dhat: bool,
+    /// Git repo to stamp the benchmark with (default: the target dir).
+    #[arg(long)]
+    repo: Option<PathBuf>,
+    #[arg(long, default_value = "data")]
+    findings_dir: PathBuf,
+}
+
+#[derive(Args)]
+struct ActivityArgs {
+    /// working | accepted | rejected | error | info
+    #[arg(long)]
+    status: String,
+    #[arg(long)]
+    function: String,
+    /// Free text: what's being tried, the verdict + reason, deltas, tradeoff.
+    #[arg(long, default_value = "")]
+    note: String,
+    #[arg(long, default_value = "loop")]
+    run: String,
+    #[arg(long, default_value_t = 0)]
+    iter: u32,
+    #[arg(long, default_value = "")]
+    commit: String,
     #[arg(long, default_value = "data")]
     findings_dir: PathBuf,
 }
@@ -206,6 +235,21 @@ fn main() -> Result<()> {
             }
         }
         Cmd::Bench(a) => do_bench(&a)?,
+        Cmd::Activity(a) => {
+            let entry = pipeline::ActivityEntry {
+                ts_ms: SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .map(|d| d.as_millis())
+                    .unwrap_or(0),
+                run: a.run.clone(),
+                iteration: a.iter,
+                status: a.status.clone(),
+                function: a.function.clone(),
+                note: a.note.clone(),
+                commit: a.commit.clone(),
+            };
+            pipeline::append_activity(&a.findings_dir, entry)?;
+        }
     }
     Ok(())
 }
@@ -240,7 +284,7 @@ fn do_bench(a: &BenchArgs) -> Result<()> {
         label: label.clone(),
         target,
         runs: a.runs,
-        repo_dir: Some(a.target.clone()),
+        repo_dir: Some(a.repo.clone().unwrap_or_else(|| a.target.clone())),
         with_dhat: a.dhat,
     };
 
@@ -360,7 +404,7 @@ fn do_profile(a: &ProfileArgs) -> Result<(String, ProfileRecord)> {
         backend_id: a.backend.clone(),
         dhat_json: a.dhat_json.clone(),
         source_roots,
-        repo_dir: Some(a.target.clone()),
+        repo_dir: Some(a.repo.clone().unwrap_or_else(|| a.target.clone())),
     };
 
     let record = pipeline::run_profile(req)?;
