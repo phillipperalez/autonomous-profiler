@@ -1,5 +1,62 @@
 [
   {
+    "id": "polars-workload-716013",
+    "workload": "polars_workload · nyc-taxi.parquet (cpu)",
+    "backend": "samply",
+    "kind": "cpu",
+    "unit": "samples",
+    "total_weight": 3658185,
+    "duration_ms": 14733,
+    "created_at_ms": 1781389716013,
+    "hotspot_count": 50,
+    "top_function": "polars_core::chunked_array::ops::gather::gather_idx_array_unchecked",
+    "top_crate": "polars_core",
+    "git": {
+      "commit": "e30ab425e4cbd9629eaabe8faa62ae2b1ef74ed4",
+      "short": "e30ab42",
+      "subject": "perf(sort): resolve_chunked_idx — branch-light linear scan over cumlens for small chunk counts in the per-element gather hot path; nyc-taxi columns have 3 chunks so the post-sort gather binary-searched cumlens once per element (polars-taxi -4.0%, RAM 1390MB) [autoperf]",
+      "dirty": true
+    }
+  },
+  {
+    "id": "polars-workload-587749",
+    "workload": "polars_workload · nyc-taxi.parquet (cpu)",
+    "backend": "samply",
+    "kind": "cpu",
+    "unit": "samples",
+    "total_weight": 3717584,
+    "duration_ms": 15441,
+    "created_at_ms": 1781389587749,
+    "hotspot_count": 50,
+    "top_function": "polars_core::chunked_array::ops::gather::gather_idx_array_unchecked",
+    "top_crate": "polars_core",
+    "git": {
+      "commit": "e30ab425e4cbd9629eaabe8faa62ae2b1ef74ed4",
+      "short": "e30ab42",
+      "subject": "perf(sort): resolve_chunked_idx — branch-light linear scan over cumlens for small chunk counts in the per-element gather hot path; nyc-taxi columns have 3 chunks so the post-sort gather binary-searched cumlens once per element (polars-taxi -4.0%, RAM 1390MB) [autoperf]",
+      "dirty": true
+    }
+  },
+  {
+    "id": "polars-workload-217923",
+    "workload": "polars_workload · nyc-taxi.parquet (cpu)",
+    "backend": "samply",
+    "kind": "cpu",
+    "unit": "samples",
+    "total_weight": 3296999,
+    "duration_ms": 41847,
+    "created_at_ms": 1781389217923,
+    "hotspot_count": 50,
+    "top_function": "polars_core::chunked_array::ops::gather::gather_idx_array_unchecked",
+    "top_crate": "polars_core",
+    "git": {
+      "commit": "e30ab425e4cbd9629eaabe8faa62ae2b1ef74ed4",
+      "short": "e30ab42",
+      "subject": "perf(sort): resolve_chunked_idx — branch-light linear scan over cumlens for small chunk counts in the per-element gather hot path; nyc-taxi columns have 3 chunks so the post-sort gather binary-searched cumlens once per element (polars-taxi -4.0%, RAM 1390MB) [autoperf]",
+      "dirty": true
+    }
+  },
+  {
     "id": "run-phase-419607",
     "workload": "run_phase · flights-1m.parquet (cpu)",
     "backend": "samply",

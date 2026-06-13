@@ -454,5 +454,61 @@
     "status": "info",
     "function": "analyze_univariate_exact (+ OnlineStatsAccumulator::update_slice, ExactQuantileCalculator::update_slice)",
     "note": "lens=branchflat: tests=ok flights=3.83% txn=-7.02%"
+  },
+  {
+    "ts_ms": 1781389326098,
+    "run": "polars-seq",
+    "iteration": 1,
+    "status": "working",
+    "function": "extend_trusted_len_unchecked",
+    "note": "optimizing Vec extend_trusted_len_unchecked: bound write loop by exact trusted length and write through end pointer to enable unrolling in the gather collect hot path"
+  },
+  {
+    "ts_ms": 1781389337333,
+    "run": "polars-seq",
+    "iteration": 1,
+    "status": "working",
+    "function": "dictionary_encoded::required::decode",
+    "note": "optimizing parquet bitpacked decode: pre-reserve target via raw end-pointer writes and verify dict indices in the same pass to remove the duplicate per-chunk traversal"
+  },
+  {
+    "ts_ms": 1781389549856,
+    "run": "polars-seq",
+    "iteration": 1,
+    "status": "rejected",
+    "function": "dictionary_encoded::required::decode",
+    "note": "raw end-pointer writes in bitpacked decode: min 502ms vs 474ms baseline (+5.9%), gate is -3%; parquet decode too small a fraction to move the gather-dominated workload"
+  },
+  {
+    "ts_ms": 1781389621545,
+    "run": "polars-seq",
+    "iteration": 2,
+    "status": "working",
+    "function": "dictionary_encoded::required::decode",
+    "note": "optimizing decode: replace target.extend(chunk.iter().map(get_unchecked)) hot loop with direct writes to reserved spare capacity via ptr, bump len once per chunk to elide per-element capacity checks/len updates"
+  },
+  {
+    "ts_ms": 1781389680967,
+    "run": "polars-seq",
+    "iteration": 2,
+    "status": "rejected",
+    "function": "dictionary_encoded::required::decode",
+    "note": "direct spare-capacity ptr writes instead of extend(map); fingerprint OK but min 507ms (+6.96%) vs 474ms baseline — regression, extend already specializes well"
+  },
+  {
+    "ts_ms": 1781389752498,
+    "run": "polars-seq",
+    "iteration": 3,
+    "status": "working",
+    "function": "dictionary_encoded::required::decode",
+    "note": "optimizing required::decode: write decoded dict values directly into pre-reserved Vec via raw ptr in the bitpacked hot loop, avoiding per-chunk extend capacity checks"
+  },
+  {
+    "ts_ms": 1781389820756,
+    "run": "polars-seq",
+    "iteration": 3,
+    "status": "rejected",
+    "function": "dictionary_encoded::required::decode",
+    "note": "raw-ptr append into pre-reserved Vec; fingerprint OK but bench regressed to min 519ms (+9.5%) vs 474 baseline — extend already uses TrustedLen fast path, manual ptr writes hurt codegen"
   }
 ]
