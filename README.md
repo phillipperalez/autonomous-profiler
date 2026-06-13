@@ -13,9 +13,9 @@ proven correct and measurably faster** — with a live dashboard of every attemp
 
 | Target | Outcome | Gate |
 |---|---|---|
-| **analyzer** (internal polars/ndarray analytics lib) | **−34%** on the flagship workload, **6 commits** | full `cargo test` suite |
+| **analyzer** (internal polars/ndarray analytics lib) | **−39%** flights / **−16%** transactions, **7 commits** | full `cargo test` suite |
 | **polars** (the OSS dataframe library itself) | **−4.0%** on the sort/gather path, **1 commit** ([details](highlights/polars-resolve-chunked-idx.md)) | correctness fingerprint over 2.96M rows |
-| swarm explorations | several bold rewrites generated, **all reverted** — none beat the baseline | benchmark + correctness |
+| swarm tournaments | diverse-lens rewrites; the **algorithmic lens landed a quantile-calculator win** the serial loop missed, while slower candidates self-reverted | benchmark + correctness |
 
 The reverts matter as much as the wins: the loop **refuses to commit a regression or an
 unverified change**. It also tried to out-hand-tune OpenBLAS/SIMD and correctly failed —
