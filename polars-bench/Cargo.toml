@@ -7,7 +7,9 @@ edition = "2021"
 # workload hits (parquet decode -> numeric cast -> arrow reduction). Depends on a
 # LOCAL polars checkout so the auto-improve loop can edit + rebuild polars.
 [dependencies]
-polars = { path = "../polars/crates/polars", default-features = false, features = ["parquet"] }
+# dtype-datetime/date so the parquet reader can construct timestamp columns
+# (real-world files like nyc-taxi have nanosecond Datetime columns).
+polars = { path = "../polars/crates/polars", default-features = false, features = ["parquet", "dtype-datetime", "dtype-date"] }
 
 # Profiling profile (release codegen + line tables) so samply symbolicates polars.
 [profile.profiling]

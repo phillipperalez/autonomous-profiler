@@ -22,3 +22,6 @@ autonomous-profiler/data/
 
 # External polars clone (improver target) — not part of this repo
 /polars/
+/polars-wt*/
+/polars-bench-wt*/
+/.swarm-target/
