@@ -244,5 +244,118 @@
     "status": "rejected",
     "function": "mahalanobis_distances_vectorized",
     "note": "contiguous-slice per-row dot regressed flights-1m +3.2% (min 260ms vs 252 baseline); dominant cost is ndarray matrix dot/mean_axis (non-editable), not the per-row reduction"
+  },
+  {
+    "ts_ms": 1781382780944,
+    "run": "polars",
+    "iteration": 1,
+    "status": "working",
+    "function": "dictionary_encoded::required::decode",
+    "note": "optimizing required::decode: write full bitpacked chunks directly into reserved spare capacity to skip Vec::extend per-element checks"
+  },
+  {
+    "ts_ms": 1781382840881,
+    "run": "polars",
+    "iteration": 1,
+    "status": "rejected",
+    "function": "dictionary_encoded::required::decode",
+    "note": "direct spare-capacity write instead of Vec::extend: within noise (min 146-153ms vs 149 baseline, ~-2.0% to +2.7%), no reliable >=3% win"
+  },
+  {
+    "ts_ms": 1781382902505,
+    "run": "polars",
+    "iteration": 2,
+    "status": "working",
+    "function": "dictionary_encoded::required::decode",
+    "note": "optimizing required::decode: write mapped dict values into reserved spare capacity via raw ptr, avoiding per-element extend overhead in the bitpacked hot loop"
+  },
+  {
+    "ts_ms": 1781382953688,
+    "run": "polars",
+    "iteration": 2,
+    "status": "rejected",
+    "function": "dictionary_encoded::required::decode",
+    "note": "spare-capacity raw-ptr write in bitpacked loop: checksum OK but min 157ms (+5.4%) vs 149ms baseline — no win, reverted"
+  },
+  {
+    "ts_ms": 1781383033957,
+    "run": "polars",
+    "iteration": 3,
+    "status": "working",
+    "function": "dictionary_encoded::required::decode",
+    "note": "optimizing decode: write full bitpacked chunks directly into reserved spare capacity (single len bump per 32-elem chunk) instead of per-element Vec::extend"
+  },
+  {
+    "ts_ms": 1781383092890,
+    "run": "polars",
+    "iteration": 3,
+    "status": "rejected",
+    "function": "dictionary_encoded::required::decode",
+    "note": "direct spare-capacity writes vs per-element extend: best min 146ms (-2.0%), below -3% gate; loop already well-optimized, change neutral"
+  },
+  {
+    "ts_ms": 1781383608264,
+    "run": "polars-sort",
+    "iteration": 1,
+    "status": "working",
+    "function": "resolve_chunked_idx",
+    "note": "optimizing resolve_chunked_idx: replace per-element partition_point binary search with branch-light linear scan for small chunk counts (gather hot path, 3 chunks)"
+  },
+  {
+    "ts_ms": 1781383737677,
+    "run": "polars-sort",
+    "iteration": 1,
+    "status": "accepted",
+    "function": "resolve_chunked_idx",
+    "note": "polars-taxi -4.4% (min 474ms) · RAM 1391MB · linear scan over cumlens replaces per-element binary search in multi-chunk gather; tradeoff: only wins for <=8 chunks, falls back to partition_point otherwise",
+    "commit": "e30ab42"
+  },
+  {
+    "ts_ms": 1781383837778,
+    "run": "polars-sort",
+    "iteration": 2,
+    "status": "working",
+    "function": "gather_idx_array_unchecked",
+    "note": "optimizing gather_idx_array_unchecked: multi-chunk no-nulls slice fast path — precompute per-chunk slices once and index directly, avoiding per-element &&A deref + value_unchecked wrapper overhead in the post-sort gather"
+  },
+  {
+    "ts_ms": 1781383941847,
+    "run": "polars-sort",
+    "iteration": 2,
+    "status": "rejected",
+    "function": "gather_idx_array_unchecked",
+    "note": "multi-chunk no-nulls slice fast path regressed: min 484-494ms vs 474ms baseline (+2.1% to +4.2%); precomputed Vec<&[T]> + extra bounds disrupted the existing value_unchecked path which the compiler already lowers to direct slice access"
+  },
+  {
+    "ts_ms": 1781384121927,
+    "run": "polars-sort",
+    "iteration": 3,
+    "status": "working",
+    "function": "PrimitiveArray::arr_from_iter_trusted (Option<T>)",
+    "note": "optimizing arr_from_iter_trusted: batch validity bits 64-at-a-time via push_word_with_len_unchecked to drop per-element bitmap branch in post-sort gather collect"
+  },
+  {
+    "ts_ms": 1781384217858,
+    "run": "polars-sort",
+    "iteration": 3,
+    "status": "rejected",
+    "function": "PrimitiveArray::arr_from_iter_trusted (Option<T>)",
+    "note": "word-batched validity (push_word_with_len_unchecked 64/iter) was +0.6% (477ms vs 474ms) — fingerprint OK but slower; bit-push wasn't the bottleneck, the Option::cloned gather dominates"
+  },
+  {
+    "ts_ms": 1781384389895,
+    "run": "polars-sort",
+    "iteration": 4,
+    "status": "working",
+    "function": "take_values_and_validity_unchecked",
+    "note": "optimizing primitive gather no-null path: manual 4-way unrolled gather loop into preallocated buffer to expose memory-level parallelism on the random-index loads (cache-miss bound)"
+  },
+  {
+    "ts_ms": 1781384468548,
+    "run": "polars-sort",
+    "iteration": 4,
+    "status": "rejected",
+    "function": "take_values_and_validity_unchecked",
+    "note": "4-way unrolled gather was +5.9% slower (502ms vs 474ms baseline); compiler autovectorization of the scalar collect_trusted loop already better, manual unroll inhibited it"
   }
 ]

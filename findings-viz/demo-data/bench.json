@@ -306,22 +306,72 @@
     }
   },
   {
-    "label": "polars-taxi",
-    "runs": 3,
-    "min_ms": 149,
-    "median_ms": 156,
-    "mean_ms": 305,
+    "label": "polars-taxi-sort",
+    "runs": 5,
+    "min_ms": 496,
+    "median_ms": 504,
+    "mean_ms": 597,
     "samples_ms": [
-      611,
-      149,
-      156
+      973,
+      515,
+      496,
+      501,
+      504
     ],
-    "peak_rss_bytes": 555761664,
-    "created_at_ms": 1781382265412,
+    "peak_rss_bytes": 1456799744,
+    "created_at_ms": 1781383412227,
     "git": {
       "commit": "90c7f9f655597d25fb0bb4225d56fe6aea67025c",
       "short": "90c7f9f",
       "subject": "perf: Prevent empty chunks from triggering copy in rechunk (#27953)",
+      "dirty": false
+    }
+  },
+  {
+    "label": "polars-taxi-sort",
+    "runs": 5,
+    "min_ms": 498,
+    "median_ms": 500,
+    "mean_ms": 596,
+    "samples_ms": [
+      961,
+      525,
+      499,
+      498,
+      500
+    ],
+    "peak_rss_bytes": 1456996352,
+    "created_at_ms": 1781383710494,
+    "git": {
+      "commit": "e30ab425e4cbd9629eaabe8faa62ae2b1ef74ed4",
+      "short": "e30ab42",
+      "subject": "perf(sort): resolve_chunked_idx — branch-light linear scan over cumlens for small chunk counts in the per-element gather hot path; nyc-taxi columns have 3 chunks so the post-sort gather binary-searched cumlens once per element (polars-taxi -4.0%, RAM 1390MB) [autoperf]",
+      "dirty": false
+    }
+  },
+  {
+    "label": "polars-taxi-sort",
+    "runs": 9,
+    "min_ms": 474,
+    "median_ms": 481,
+    "mean_ms": 531,
+    "samples_ms": [
+      929,
+      491,
+      490,
+      479,
+      486,
+      474,
+      481,
+      475,
+      475
+    ],
+    "peak_rss_bytes": 1458946048,
+    "created_at_ms": 1781383721299,
+    "git": {
+      "commit": "e30ab425e4cbd9629eaabe8faa62ae2b1ef74ed4",
+      "short": "e30ab42",
+      "subject": "perf(sort): resolve_chunked_idx — branch-light linear scan over cumlens for small chunk counts in the per-element gather hot path; nyc-taxi columns have 3 chunks so the post-sort gather binary-searched cumlens once per element (polars-taxi -4.0%, RAM 1390MB) [autoperf]",
       "dirty": false
     }
   }

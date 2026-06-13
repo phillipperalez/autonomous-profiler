@@ -1,0 +1,922 @@
+{
+  "id": "polars-workload-732005",
+  "workload": "polars_workload · nyc-taxi.parquet (cpu)",
+  "backend": "samply",
+  "kind": "cpu",
+  "unit": "samples",
+  "total_weight": 3446066,
+  "function_count": 191,
+  "duration_ms": 2495,
+  "created_at_ms": 1781383732005,
+  "git": {
+    "commit": "e30ab425e4cbd9629eaabe8faa62ae2b1ef74ed4",
+    "short": "e30ab42",
+    "subject": "perf(sort): resolve_chunked_idx — branch-light linear scan over cumlens for small chunk counts in the per-element gather hot path; nyc-taxi columns have 3 chunks so the post-sort gather binary-searched cumlens once per element (polars-taxi -4.0%, RAM 1390MB) [autoperf]",
+    "dirty": false
+  },
+  "crate_rollup": [
+    {
+      "name": "polars_core",
+      "pct": 28.291129653349646
+    },
+    {
+      "name": "rayon",
+      "pct": 22.988474393699946
+    },
+    {
+      "name": "polars_arrow",
+      "pct": 15.615139118055197
+    },
+    {
+      "name": "_platform_memmove",
+      "pct": 7.286627708233098
+    },
+    {
+      "name": "swtch_pri",
+      "pct": 6.131426385913676
+    },
+    {
+      "name": "polars_parquet",
+      "pct": 5.7352645016085
+    },
+    {
+      "name": "ZSTD_decompressSequences",
+      "pct": 3.9509399994080208
+    },
+    {
+      "name": "polars_compute",
+      "pct": 3.4434047403619084
+    }
+  ],
+  "hot_path": [
+    "rayon::iter::plumbing::bridge_producer_consumer::helper",
+    "rayon_core::join::join_context::{{closure}}"
+  ],
+  "hotspots": [
+    {
+      "rank": 1,
+      "function": "polars_core::chunked_array::ops::gather::gather_idx_array_unchecked",
+      "crate_name": "polars_core",
+      "self_pct": 27.920533152876352,
+      "total_pct": 42.11114935117319,
+      "source": {
+        "file": "~/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/option.rs",
+        "line": 2141
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- Iterator>::fold",
+        "-> Option<T>>>::arr_from_iter_trusted"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 2,
+      "function": "<polars_arrow::array::primitive::PrimitiveArray<T> as polars_arrow::array::static_array_collect::ArrayFromIter<core::option::Option<T>>>::arr_from_iter_trusted",
+      "crate_name": "polars_arrow",
+      "self_pct": 14.19061619829684,
+      "total_pct": 14.19061619829684,
+      "source": {
+        "file": "~/Source2/polars/crates/polars-arrow/src/legacy/trusted_len/push_unchecked.rs",
+        "line": 69
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- gather::gather_idx_array_unchecked"
+      ],
+      "tags": [
+        "alloc/copy-heavy",
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 3,
+      "function": "rayon::slice::sort::par_merge",
+      "crate_name": "rayon",
+      "self_pct": 11.894432666118409,
+      "total_pct": 14.586836119795732,
+      "source": {
+        "file": "rayon-1.12.0/src/slice/sort.rs",
+        "line": 1307
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- join_context::{{closure}}",
+        "<- Job>::execute",
+        "<- StackJob<L,F,R>::run_inline",
+        "-> join_context::{{closure}}"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 4,
+      "function": "rayon::slice::sort::merge_sort",
+      "crate_name": "rayon",
+      "self_pct": 8.783348896974115,
+      "total_pct": 11.757087647189579,
+      "neighbors": [
+        "<- Producer::fold_with",
+        "-> sort::insertion_sort_shift_left",
+        "-> _platform_memmove",
+        "-> RawVec<T,A>::grow_one"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 5,
+      "function": "_platform_memmove",
+      "crate_name": "_platform_memmove",
+      "self_pct": 7.286627708233098,
+      "total_pct": 7.286627708233098,
+      "neighbors": [
+        "<- concatenate::concatenate_primitive",
+        "<- sort::merge_sort",
+        "<- ChunkedDecoder<T>::remainder"
+      ],
+      "tags": [
+        "alloc/copy-heavy",
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 6,
+      "function": "swtch_pri",
+      "crate_name": "swtch_pri",
+      "self_pct": 6.131426385913676,
+      "total_pct": 6.131426385913676,
+      "neighbors": [
+        "<- cthread_yield"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 7,
+      "function": "ZSTD_decompressSequences",
+      "crate_name": "ZSTD_decompressSequences",
+      "self_pct": 3.9509399994080208,
+      "total_pct": 3.9509399994080208,
+      "source": {
+        "file": "zstd-sys-2.0.16+zstd.1.5.7/zstd/lib/decompress/zstd_decompress_block.c",
+        "line": 1249
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- ZSTD_decompressBlock_internal"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 8,
+      "function": "polars_parquet::arrow::read::deserialize::dictionary_encoded::required::decode",
+      "crate_name": "polars_parquet",
+      "self_pct": 3.686000210094641,
+      "total_pct": 6.25980465841339,
+      "source": {
+        "file": "~/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs",
+        "line": 1915
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- dictionary_encoded::decode_dict_dispatch",
+        "<- optional::decode",
+        "-> ChunkedDecoder<T>::remainder",
+        "-> HybridRleDecoder::next_chunk",
+        "-> ChunkedDecoder<T>::next_into"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 9,
+      "function": "polars_compute::gather::primitive::take_values_and_validity_unchecked",
+      "crate_name": "polars_compute",
+      "self_pct": 2.587965523585445,
+      "total_pct": 2.587965523585445,
+      "source": {
+        "file": "~/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs",
+        "line": 310
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- binview::take_binview_unchecked"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 10,
+      "function": "HUF_decompress4X2_usingDTable_internal",
+      "crate_name": "HUF_decompress4X2_usingDTable_internal",
+      "self_pct": 2.2326037864625925,
+      "total_pct": 2.297489369037041,
+      "source": {
+        "file": "zstd-sys-2.0.16+zstd.1.5.7/zstd/lib/decompress/huf_decompress.c",
+        "line": 1677
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- ZSTD_decodeLiteralsBlock",
+        "-> HUF_DecompressFastArgs_init"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 11,
+      "function": "rayon::slice::sort::insertion_sort_shift_left",
+      "crate_name": "rayon",
+      "self_pct": 2.157300527616128,
+      "total_pct": 2.157300527616128,
+      "source": {
+        "file": "~/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ptr/mod.rs",
+        "line": 552
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- sort::merge_sort"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 12,
+      "function": "HUF_decompress4X1_usingDTable_internal",
+      "crate_name": "HUF_decompress4X1_usingDTable_internal",
+      "self_pct": 1.4985493603430695,
+      "total_pct": 1.5489256444885269,
+      "source": {
+        "file": "zstd-sys-2.0.16+zstd.1.5.7/zstd/lib/decompress/huf_decompress.c",
+        "line": 850
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- ZSTD_decodeLiteralsBlock",
+        "-> HUF_DecompressFastArgs_init"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 13,
+      "function": "_kernelrpc_mach_vm_deallocate_trap",
+      "crate_name": "_kernelrpc_mach_vm_deallocate_trap",
+      "self_pct": 1.0196554563957858,
+      "total_pct": 1.0196554563957858,
+      "neighbors": [
+        "<- mach_vm_deallocate"
+      ],
+      "tags": [
+        "alloc/copy-heavy",
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 14,
+      "function": "polars_arrow::io::ipc::read::schema::deserialize_schema",
+      "crate_name": "polars_arrow",
+      "self_pct": 0.8314118185780539,
+      "total_pct": 0.8314118185780539,
+      "source": {
+        "file": "~/Source2/polars/crates/polars-arrow/src/io/ipc/read/schema.rs",
+        "line": 372
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- metadata::read_schema_from_metadata"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 15,
+      "function": "polars_arrow::compute::concatenate::concatenate_view",
+      "crate_name": "polars_arrow",
+      "self_pct": 0.592095450290273,
+      "total_pct": 0.592095450290273,
+      "source": {
+        "file": "~/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ptr/mod.rs",
+        "line": 1921
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- concatenate::concatenate_unchecked"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 16,
+      "function": "polars_parquet::parquet::encoding::hybrid_rle::HybridRleDecoder::next_chunk",
+      "crate_name": "polars_parquet",
+      "self_pct": 0.48487173490002805,
+      "total_pct": 0.8292644424105632,
+      "source": {
+        "file": "~/Source2/polars/crates/polars-parquet/src/parquet/encoding/hybrid_rle/mod.rs",
+        "line": 69
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- required::decode",
+        "-> Decoder<T>::try_new",
+        "-> _platform_memmove",
+        "-> 0xc3e5a0"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 17,
+      "function": "polars_parquet::parquet::encoding::bitpacked::decode::ChunkedDecoder<T>::next_into",
+      "crate_name": "polars_parquet",
+      "self_pct": 0.4270086527652111,
+      "total_pct": 0.4586679419372699,
+      "source": {
+        "file": "~/Source2/polars/crates/polars-parquet/src/parquet/encoding/bitpacked/decode.rs",
+        "line": 180
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- required::decode",
+        "-> unpack::unpack32"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 18,
+      "function": "polars_compute::float_sum::pairwise_sum",
+      "crate_name": "polars_compute",
+      "self_pct": 0.4201312453098693,
+      "total_pct": 0.4201312453098693,
+      "neighbors": [
+        "<- float_sum::pairwise_sum",
+        "<- float_sum::sum_arr_as_f64",
+        "-> float_sum::pairwise_sum"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 19,
+      "function": "polars_compute::cast::primitive_to::primitive_to_primitive_dyn",
+      "crate_name": "polars_compute",
+      "self_pct": 0.38736924945720713,
+      "total_pct": 0.38736924945720713,
+      "source": {
+        "file": "~/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/slice/iter/macros.rs",
+        "line": 279
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- Iterator>::try_fold"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 20,
+      "function": "polars_parquet::parquet::encoding::bitpacked::unpack::unpack32::unpack",
+      "crate_name": "polars_parquet",
+      "self_pct": 0.3838870178342493,
+      "total_pct": 0.3838870178342493,
+      "source": {
+        "file": "~/Source2/polars/crates/polars-parquet/src/parquet/encoding/bitpacked/unpack.rs",
+        "line": 88
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- required::decode"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 21,
+      "function": "polars_core::chunked_array::ops::sort::arg_sort::arg_sort_no_nulls",
+      "crate_name": "polars_core",
+      "self_pct": 0.3455534513848545,
+      "total_pct": 0.3455534513848545,
+      "source": {
+        "file": "~/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ptr/mod.rs",
+        "line": 1921
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- sort::arg_sort_numeric"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 22,
+      "function": "polars_parquet::parquet::encoding::bitpacked::decode::ChunkedDecoder<T>::remainder",
+      "crate_name": "polars_parquet",
+      "self_pct": 0.33589025863114635,
+      "total_pct": 0.9019850461366672,
+      "source": {
+        "file": "~/Source2/polars/crates/polars-parquet/src/parquet/encoding/bitpacked/decode.rs",
+        "line": 155
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- required::decode",
+        "-> _platform_memmove",
+        "-> unpack::unpack32"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 23,
+      "function": "<core::iter::adapters::chain::Chain<A,B> as core::iter::traits::iterator::Iterator>::try_fold",
+      "crate_name": "core",
+      "self_pct": 0.2937552559933559,
+      "total_pct": 0.7913951735108962,
+      "source": {
+        "file": "~/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/adapters/chain.rs",
+        "line": 105
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- WorkerThread::find_work",
+        "-> Stealer<T>::steal",
+        "-> 0x1d39c"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 24,
+      "function": "crossbeam_deque::deque::Stealer<T>::steal",
+      "crate_name": "crossbeam_deque",
+      "self_pct": 0.23986772162808256,
+      "total_pct": 0.47300312878511325,
+      "source": {
+        "file": "~/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/std/src/sys/thread_local/native/mod.rs",
+        "line": 97
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- Iterator>::try_fold",
+        "-> default::with_handle",
+        "-> 0x1d39c"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 25,
+      "function": "crossbeam_epoch::default::with_handle",
+      "crate_name": "crossbeam_epoch",
+      "self_pct": 0.16784356422657024,
+      "total_pct": 0.20510344259221966,
+      "source": {
+        "file": "~/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/std/src/sys/thread_local/native/mod.rs",
+        "line": 97
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- Stealer<T>::steal",
+        "-> Global::collect"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 26,
+      "function": "polars_parquet::parquet::encoding::bitpacked::decode::Decoder<T>::try_new",
+      "crate_name": "polars_parquet",
+      "self_pct": 0.166595764561677,
+      "total_pct": 0.166595764561677,
+      "source": {
+        "file": "~/Source2/polars/crates/polars-parquet/src/parquet/encoding/bitpacked/decode.rs",
+        "line": 83
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- HybridRleDecoder::next_chunk"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 27,
+      "function": "rayon::iter::plumbing::bridge_producer_consumer::helper",
+      "crate_name": "rayon",
+      "self_pct": 0.153392302991295,
+      "total_pct": 79.50329448130128,
+      "source": {
+        "file": "~/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/alloc/src/vec/mod.rs",
+        "line": 3959
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- join_context::{{closure}}",
+        "<- Job>::execute",
+        "<- StackJob<L,F,R>::run_inline",
+        "-> join_context::{{closure}}",
+        "-> Folder::consume_iter",
+        "-> SpecExtend<T,I>>::spec_extend"
+      ],
+      "tags": [
+        "dominates the profile"
+      ]
+    },
+    {
+      "rank": 28,
+      "function": "polars_parquet::arrow::read::deserialize::primitive::plain::decode_no_incompact_predicates",
+      "crate_name": "polars_parquet",
+      "self_pct": 0.12869747706515197,
+      "total_pct": 0.32309305741677613,
+      "source": {
+        "file": "~/Source2/polars/crates/polars-parquet/src/arrow/read/deserialize/primitive/plain/mod.rs",
+        "line": 127
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- plain::decode",
+        "-> vec::with_cast_mut_vec"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 29,
+      "function": "ZSTD_buildFSETable",
+      "crate_name": "ZSTD_buildFSETable",
+      "self_pct": 0.11613242462564559,
+      "total_pct": 0.11613242462564559,
+      "source": {
+        "file": "zstd-sys-2.0.16+zstd.1.5.7/zstd/lib/decompress/zstd_decompress_block.c",
+        "line": 0
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- ZSTD_buildSeqTable"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 30,
+      "function": "HUF_DecompressFastArgs_init",
+      "crate_name": "HUF_DecompressFastArgs_init",
+      "self_pct": 0.11526186671990613,
+      "total_pct": 0.11526186671990613,
+      "source": {
+        "file": "zstd-sys-2.0.16+zstd.1.5.7/zstd/lib/decompress/huf_decompress.c",
+        "line": 151
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- HUF_decompress4X2_usingDTable_internal",
+        "<- HUF_decompress4X1_usingDTable_internal"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 31,
+      "function": "HUF_readStats_wksp",
+      "crate_name": "HUF_readStats_wksp",
+      "self_pct": 0.10536652519133412,
+      "total_pct": 0.16714711790197867,
+      "source": {
+        "file": "zstd-sys-2.0.16+zstd.1.5.7/zstd/lib/common/entropy_common.c",
+        "line": 272
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- HUF_readDTableX2_wksp",
+        "-> FSE_decompress_wksp_bmi2"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 32,
+      "function": "alloc::raw_vec::RawVecInner<A>::finish_grow",
+      "crate_name": "alloc",
+      "self_pct": 0.0988083223014301,
+      "total_pct": 0.0988083223014301,
+      "neighbors": [
+        "<- RawVec<T,A>::grow_one"
+      ],
+      "tags": [
+        "alloc/copy-heavy",
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 33,
+      "function": "polars_workload::main",
+      "crate_name": "polars_workload",
+      "self_pct": 0.0951809976941823,
+      "total_pct": 3.1695272232162703,
+      "source": {
+        "file": "~/Source2/polars-bench/examples/polars_workload.rs",
+        "line": 38
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- backtrace::__rust_begin_short_backtrace",
+        "-> dataframe::DataFrame>",
+        "-> SerReader<R>>::finish",
+        "-> float_sum::sum_arr_as_f64"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 34,
+      "function": "polars_parquet::parquet::encoding::bitpacked::unpack::unpack32",
+      "crate_name": "polars_parquet",
+      "self_pct": 0.09256932397696388,
+      "total_pct": 0.09256932397696388,
+      "source": {
+        "file": "~/Source2/polars/crates/polars-parquet/src/parquet/encoding/bitpacked/unpack.rs",
+        "line": 103
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- ChunkedDecoder<T>::remainder",
+        "<- ChunkedDecoder<T>::next_into"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 35,
+      "function": "HUF_readDTableX2_wksp",
+      "crate_name": "HUF_readDTableX2_wksp",
+      "self_pct": 0.07350410584126943,
+      "total_pct": 0.2406512237432481,
+      "source": {
+        "file": "zstd-sys-2.0.16+zstd.1.5.7/zstd/lib/decompress/huf_decompress.c",
+        "line": 1203
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- HUF_decompress4X_hufOnly_wksp",
+        "-> HUF_readStats_wksp"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 36,
+      "function": "__bzero",
+      "crate_name": "__bzero",
+      "self_pct": 0.06410208045928313,
+      "total_pct": 0.06410208045928313,
+      "neighbors": [
+        "<- compression::decompress",
+        "<- optional::decode"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 37,
+      "function": "ZSTD_decompressSequencesSplitLitBuffer",
+      "crate_name": "ZSTD_decompressSequencesSplitLitBuffer",
+      "self_pct": 0.05490318525530272,
+      "total_pct": 0.09149563589321853,
+      "source": {
+        "file": "zstd-sys-2.0.16+zstd.1.5.7/zstd/lib/decompress/zstd_decompress_block.c",
+        "line": 1593
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- ZSTD_decompressBlock_internal",
+        "-> _platform_memmove"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 38,
+      "function": "FSE_buildDTable_internal",
+      "crate_name": "FSE_buildDTable_internal",
+      "self_pct": 0.05455496209300693,
+      "total_pct": 0.05455496209300693,
+      "source": {
+        "file": "zstd-sys-2.0.16+zstd.1.5.7/zstd/lib/common/fse_decompress.c",
+        "line": 153
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- FSE_decompress_wksp_bmi2"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 39,
+      "function": "0x1d39c",
+      "crate_name": "0x1d39c",
+      "self_pct": 0.052668753297238066,
+      "total_pct": 0.052668753297238066,
+      "neighbors": [
+        "<- Stealer<T>::steal",
+        "<- Iterator>::try_fold"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 40,
+      "function": "polars_compute::float_sum::pairwise_sum_with_mask",
+      "crate_name": "polars_compute",
+      "self_pct": 0.04793872200938694,
+      "total_pct": 0.04793872200938694,
+      "neighbors": [
+        "<- float_sum::pairwise_sum_with_mask",
+        "<- float_sum::sum_arr_as_f64",
+        "-> float_sum::pairwise_sum_with_mask"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 41,
+      "function": "0x2b698",
+      "crate_name": "0x2b698",
+      "self_pct": 0.03740497134993932,
+      "total_pct": 0.03740497134993932,
+      "neighbors": [
+        "<- ChunkedArray<T>>::take_unchecked"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 42,
+      "function": "crossbeam_epoch::internal::Global::try_advance",
+      "crate_name": "crossbeam_epoch",
+      "self_pct": 0.03725987836564941,
+      "total_pct": 0.03725987836564941,
+      "neighbors": [
+        "<- Global::collect"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 43,
+      "function": "rayon_core::registry::WorkerThread::wait_until_cold",
+      "crate_name": "rayon_core",
+      "self_pct": 0.035983060103898186,
+      "total_pct": 96.83047277678374,
+      "source": {
+        "file": "rayon-core-1.13.0/src/sleep/mod.rs",
+        "line": 72
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- ThreadBuilder::run",
+        "<- join_context::{{closure}}",
+        "-> Job>::execute",
+        "-> cthread_yield",
+        "-> WorkerThread::find_work"
+      ],
+      "tags": [
+        "dominates the profile"
+      ]
+    },
+    {
+      "rank": 44,
+      "function": "rayon_core::join::join_context::{{closure}}",
+      "crate_name": "rayon_core",
+      "self_pct": 0.03279101444952012,
+      "total_pct": 72.22656211459676,
+      "neighbors": [
+        "<- bridge_producer_consumer::helper",
+        "<- sort::par_merge",
+        "<- sort::merge_recurse",
+        "-> bridge_producer_consumer::helper",
+        "-> StackJob<L,F,R>::run_inline",
+        "-> WorkerThread::wait_until_cold"
+      ],
+      "tags": [
+        "dominates the profile"
+      ]
+    },
+    {
+      "rank": 45,
+      "function": "crossbeam_deque::deque::Worker<T>::pop",
+      "crate_name": "crossbeam_deque",
+      "self_pct": 0.031136954428615124,
+      "total_pct": 0.031136954428615124,
+      "source": {
+        "file": "~/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/sync/atomic.rs",
+        "line": 0
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- join_context::{{closure}}"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 46,
+      "function": "ZSTD_decompressStream",
+      "crate_name": "ZSTD_decompressStream",
+      "self_pct": 0.02881546667997653,
+      "total_pct": 8.304542048817405,
+      "source": {
+        "file": "zstd-sys-2.0.16+zstd.1.5.7/zstd/lib/decompress/zstd_decompress.c",
+        "line": 2138
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- DCtx::decompress_stream",
+        "-> ZSTD_decompressMultiFrame"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 47,
+      "function": "0xc3e5a0",
+      "crate_name": "0xc3e5a0",
+      "self_pct": 0.025739495413030396,
+      "total_pct": 0.025739495413030396,
+      "neighbors": [
+        "<- HybridRleDecoder::next_chunk",
+        "<- sort::merge_sort"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 48,
+      "function": "polars_core::series::from::<impl core::convert::TryFrom<(&polars_arrow::datatypes::field::Field,alloc::vec::Vec<alloc::boxed::Box<dyn polars_arrow::array::Array>>)> for polars_core::series::Series>::try_from",
+      "crate_name": "polars_core",
+      "self_pct": 0.025043049088438817,
+      "total_pct": 0.025043049088438817,
+      "source": {
+        "file": "~/Source2/polars/crates/polars-core/src/series/from.rs",
+        "line": 928
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- read_impl::column_idx_to_series"
+      ],
+      "tags": [
+        "alloc/copy-heavy",
+        "tight self-time (compute leaf)"
+      ]
+    },
+    {
+      "rank": 49,
+      "function": "<polars_parquet::arrow::read::deserialize::binview::BinViewDecoder as polars_parquet::arrow::read::deserialize::utils::Decoder>::extend_filtered_with_state",
+      "crate_name": "polars_parquet",
+      "self_pct": 0.02338898906753382,
+      "total_pct": 0.18006039350378084,
+      "source": {
+        "file": "~/Source2/polars/crates/polars-parquet/src/arrow/read/deserialize/dictionary_encoded/mod.rs",
+        "line": 102
+      },
+      "snippet": null,
+      "neighbors": [
+        "<- PageDecoder<D>::collect",
+        "-> vec::with_cast_mut_vec"
+      ],
+      "tags": []
+    },
+    {
+      "rank": 50,
+      "function": "_kernelrpc_mach_vm_map_trap",
+      "crate_name": "_kernelrpc_mach_vm_map_trap",
+      "self_pct": 0.02257646835551031,
+      "total_pct": 0.02257646835551031,
+      "neighbors": [
+        "<- mach_vm_map"
+      ],
+      "tags": [
+        "tight self-time (compute leaf)"
+      ]
+    }
+  ]
+}

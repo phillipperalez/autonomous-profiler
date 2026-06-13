@@ -1,5 +1,157 @@
 [
   {
+    "id": "polars-workload-291715",
+    "workload": "polars_workload · nyc-taxi.parquet (cpu)",
+    "backend": "samply",
+    "kind": "cpu",
+    "unit": "samples",
+    "total_weight": 3263177,
+    "duration_ms": 47666,
+    "created_at_ms": 1781384291715,
+    "hotspot_count": 50,
+    "top_function": "polars_core::chunked_array::ops::gather::gather_idx_array_unchecked",
+    "top_crate": "polars_core",
+    "git": {
+      "commit": "e30ab425e4cbd9629eaabe8faa62ae2b1ef74ed4",
+      "short": "e30ab42",
+      "subject": "perf(sort): resolve_chunked_idx — branch-light linear scan over cumlens for small chunk counts in the per-element gather hot path; nyc-taxi columns have 3 chunks so the post-sort gather binary-searched cumlens once per element (polars-taxi -4.0%, RAM 1390MB) [autoperf]",
+      "dirty": false
+    }
+  },
+  {
+    "id": "polars-workload-3500",
+    "workload": "polars_workload · nyc-taxi.parquet (cpu)",
+    "backend": "samply",
+    "kind": "cpu",
+    "unit": "samples",
+    "total_weight": 3332937,
+    "duration_ms": 39715,
+    "created_at_ms": 1781384003500,
+    "hotspot_count": 50,
+    "top_function": "polars_core::chunked_array::ops::gather::gather_idx_array_unchecked",
+    "top_crate": "polars_core",
+    "git": {
+      "commit": "e30ab425e4cbd9629eaabe8faa62ae2b1ef74ed4",
+      "short": "e30ab42",
+      "subject": "perf(sort): resolve_chunked_idx — branch-light linear scan over cumlens for small chunk counts in the per-element gather hot path; nyc-taxi columns have 3 chunks so the post-sort gather binary-searched cumlens once per element (polars-taxi -4.0%, RAM 1390MB) [autoperf]",
+      "dirty": false
+    }
+  },
+  {
+    "id": "polars-workload-775326",
+    "workload": "polars_workload · nyc-taxi.parquet (cpu)",
+    "backend": "samply",
+    "kind": "cpu",
+    "unit": "samples",
+    "total_weight": 3417884,
+    "duration_ms": 2241,
+    "created_at_ms": 1781383775326,
+    "hotspot_count": 50,
+    "top_function": "polars_core::chunked_array::ops::gather::gather_idx_array_unchecked",
+    "top_crate": "polars_core",
+    "git": {
+      "commit": "e30ab425e4cbd9629eaabe8faa62ae2b1ef74ed4",
+      "short": "e30ab42",
+      "subject": "perf(sort): resolve_chunked_idx — branch-light linear scan over cumlens for small chunk counts in the per-element gather hot path; nyc-taxi columns have 3 chunks so the post-sort gather binary-searched cumlens once per element (polars-taxi -4.0%, RAM 1390MB) [autoperf]",
+      "dirty": false
+    }
+  },
+  {
+    "id": "polars-workload-732005",
+    "workload": "polars_workload · nyc-taxi.parquet (cpu)",
+    "backend": "samply",
+    "kind": "cpu",
+    "unit": "samples",
+    "total_weight": 3446066,
+    "duration_ms": 2495,
+    "created_at_ms": 1781383732005,
+    "hotspot_count": 50,
+    "top_function": "polars_core::chunked_array::ops::gather::gather_idx_array_unchecked",
+    "top_crate": "polars_core",
+    "git": {
+      "commit": "e30ab425e4cbd9629eaabe8faa62ae2b1ef74ed4",
+      "short": "e30ab42",
+      "subject": "perf(sort): resolve_chunked_idx — branch-light linear scan over cumlens for small chunk counts in the per-element gather hot path; nyc-taxi columns have 3 chunks so the post-sort gather binary-searched cumlens once per element (polars-taxi -4.0%, RAM 1390MB) [autoperf]",
+      "dirty": false
+    }
+  },
+  {
+    "id": "polars-workload-486410",
+    "workload": "polars_workload · nyc-taxi.parquet (cpu)",
+    "backend": "samply",
+    "kind": "cpu",
+    "unit": "samples",
+    "total_weight": 3579677,
+    "duration_ms": 2990,
+    "created_at_ms": 1781383486410,
+    "hotspot_count": 50,
+    "top_function": "polars_core::chunked_array::ops::gather::gather_idx_array_unchecked",
+    "top_crate": "polars_core",
+    "git": {
+      "commit": "90c7f9f655597d25fb0bb4225d56fe6aea67025c",
+      "short": "90c7f9f",
+      "subject": "perf: Prevent empty chunks from triggering copy in rechunk (#27953)",
+      "dirty": false
+    }
+  },
+  {
+    "id": "polars-workload-986132",
+    "workload": "polars_workload · nyc-taxi.parquet (cpu)",
+    "backend": "samply",
+    "kind": "cpu",
+    "unit": "samples",
+    "total_weight": 559235,
+    "duration_ms": 13854,
+    "created_at_ms": 1781382986132,
+    "hotspot_count": 37,
+    "top_function": "ZSTD_decompressSequences",
+    "top_crate": "polars_parquet",
+    "git": {
+      "commit": "90c7f9f655597d25fb0bb4225d56fe6aea67025c",
+      "short": "90c7f9f",
+      "subject": "perf: Prevent empty chunks from triggering copy in rechunk (#27953)",
+      "dirty": false
+    }
+  },
+  {
+    "id": "polars-workload-876602",
+    "workload": "polars_workload · nyc-taxi.parquet (cpu)",
+    "backend": "samply",
+    "kind": "cpu",
+    "unit": "samples",
+    "total_weight": 549646,
+    "duration_ms": 14354,
+    "created_at_ms": 1781382876602,
+    "hotspot_count": 41,
+    "top_function": "polars_parquet::arrow::read::deserialize::dictionary_encoded::required::decode",
+    "top_crate": "polars_parquet",
+    "git": {
+      "commit": "90c7f9f655597d25fb0bb4225d56fe6aea67025c",
+      "short": "90c7f9f",
+      "subject": "perf: Prevent empty chunks from triggering copy in rechunk (#27953)",
+      "dirty": false
+    }
+  },
+  {
+    "id": "polars-workload-731222",
+    "workload": "polars_workload · nyc-taxi.parquet (cpu)",
+    "backend": "samply",
+    "kind": "cpu",
+    "unit": "samples",
+    "total_weight": 527126,
+    "duration_ms": 2851,
+    "created_at_ms": 1781382731222,
+    "hotspot_count": 33,
+    "top_function": "polars_parquet::arrow::read::deserialize::dictionary_encoded::required::decode",
+    "top_crate": "polars_parquet",
+    "git": {
+      "commit": "90c7f9f655597d25fb0bb4225d56fe6aea67025c",
+      "short": "90c7f9f",
+      "subject": "perf: Prevent empty chunks from triggering copy in rechunk (#27953)",
+      "dirty": false
+    }
+  },
+  {
     "id": "polars-workload-225468",
     "workload": "polars_workload · nyc-taxi.parquet (cpu)",
     "backend": "samply",
