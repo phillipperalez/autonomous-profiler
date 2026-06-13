@@ -414,5 +414,45 @@
     "function": "ExactQuantileCalculator::quantiles",
     "note": "swarm winner [algorithmic] flights -6.746031746031746%",
     "commit": "1c99b0e"
+  },
+  {
+    "ts_ms": 1781387707431,
+    "run": "swarm-r1",
+    "iteration": 1,
+    "status": "info",
+    "function": "detect_conditional_outliers",
+    "note": "lens=algorithmic: tests=ok flights=8.94% txn=12.12%"
+  },
+  {
+    "ts_ms": 1781387781727,
+    "run": "swarm-r1",
+    "iteration": 2,
+    "status": "info",
+    "function": "analyze_univariate_exact (Phase 1 hot per-element loop) via OnlineStatsAccumulator::update_batch + ExactQuantileCalculator::append_iter",
+    "note": "lens=locality: tests=ok flights=8.51% txn=-3.16%"
+  },
+  {
+    "ts_ms": 1781387859886,
+    "run": "swarm-r1",
+    "iteration": 3,
+    "status": "info",
+    "function": "compute_all_correlations (Phase 3 bivariate correlation, with refactored compute_correlation_pair)",
+    "note": "lens=dedup: tests=ok flights=2.98% txn=3.78%"
+  },
+  {
+    "ts_ms": 1781387931779,
+    "run": "swarm-r1",
+    "iteration": 4,
+    "status": "info",
+    "function": "detect_conditional_outliers",
+    "note": "lens=datashape: tests=true flights=2.98% txn=1.16%"
+  },
+  {
+    "ts_ms": 1781388004908,
+    "run": "swarm-r1",
+    "iteration": 5,
+    "status": "info",
+    "function": "analyze_univariate_exact (+ OnlineStatsAccumulator::update_slice, ExactQuantileCalculator::update_slice)",
+    "note": "lens=branchflat: tests=ok flights=3.83% txn=-7.02%"
   }
 ]
