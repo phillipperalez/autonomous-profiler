@@ -1,5 +1,24 @@
 [
   {
+    "id": "run-phase-232248",
+    "workload": "run_phase · flights-1m.parquet (cpu)",
+    "backend": "samply",
+    "kind": "cpu",
+    "unit": "samples",
+    "total_weight": 408242,
+    "duration_ms": 11716,
+    "created_at_ms": 1781391232248,
+    "hotspot_count": 50,
+    "top_function": "polars_compute::cast::primitive_to::primitive_to_primitive_dyn",
+    "top_crate": "polars_compute",
+    "git": {
+      "commit": "1c99b0ecd8fee5567a23e293b63a84c829b643ac",
+      "short": "1c99b0e",
+      "subject": "perf(philtool_core): ExactQuantileCalculator::quantiles — swarm winner [algorithmic] (flights -6.746031746031746%) [autoperf]",
+      "dirty": false
+    }
+  },
+  {
     "id": "polars-workload-716013",
     "workload": "polars_workload · nyc-taxi.parquet (cpu)",
     "backend": "samply",

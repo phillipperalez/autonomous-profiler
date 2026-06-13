@@ -510,5 +510,21 @@
     "status": "rejected",
     "function": "dictionary_encoded::required::decode",
     "note": "raw-ptr append into pre-reserved Vec; fingerprint OK but bench regressed to min 519ms (+9.5%) vs 474 baseline — extend already uses TrustedLen fast path, manual ptr writes hurt codegen"
+  },
+  {
+    "ts_ms": 1781391296789,
+    "run": "asm-guided",
+    "iteration": 1,
+    "status": "working",
+    "function": "philtool_core::analysis::anomaly::analyze_anomalies",
+    "note": "lens=loop-unroll: 1 floating-point divide (expensive; consider reciprocal/precompute); scalar FP with NO NEON SIMD - the hot loop did NOT vectorize; a SIMD rewrite (core::simd / intrinsics) may help. mem(ld/st)=870/2502=34.8% (<40%), branch/cmp=274/2502=10.9% (<20%), so neither data-locality nor branch-flatten thresholds met; scalar-FP present with SIMD==0 selects loop-unroll."
+  },
+  {
+    "ts_ms": 1781391373509,
+    "run": "asm-guided",
+    "iteration": 1,
+    "status": "rejected",
+    "function": "philtool_core::analysis::anomaly::analyze_anomalies",
+    "note": "flights +6.4% (250ms vs 235ms baseline); 4x manual unroll regressed, did not meet -3.0% gate"
   }
 ]
