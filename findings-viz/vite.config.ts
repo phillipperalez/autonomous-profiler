@@ -15,9 +15,11 @@ const dataDir =
   (existsSync(liveData) ? liveData : resolve(__dirname, "demo-data"));
 
 export default defineConfig({
-  // Served at the apex custom domain https://autoperf.run/, so base is root.
-  // (For the bare github.io/<repo>/ project page, set BASE_PATH=/autonomous-profiler/.)
-  base: process.env.BASE_PATH ?? "/",
+  // Relative base so the build works at ANY mount point: the apex domain
+  // https://autoperf.run/ AND the project page github.io/autonomous-profiler/.
+  // Assets load as ./assets/… and data fetches (import.meta.env.BASE_URL) resolve
+  // relative to the page. Override with BASE_PATH if a fixed absolute base is needed.
+  base: process.env.BASE_PATH ?? "./",
   plugins: [solid()],
   publicDir: dataDir,
   server: { port: 5180, fs: { allow: [resolve(__dirname), dataDir] } },
