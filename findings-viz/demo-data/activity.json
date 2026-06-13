@@ -357,5 +357,29 @@
     "status": "rejected",
     "function": "take_values_and_validity_unchecked",
     "note": "4-way unrolled gather was +5.9% slower (502ms vs 474ms baseline); compiler autovectorization of the scalar collect_trusted loop already better, manual unroll inhibited it"
+  },
+  {
+    "ts_ms": 1781385233886,
+    "run": "swarm",
+    "iteration": 1,
+    "status": "info",
+    "function": "take_values_and_validity_unchecked",
+    "note": "lens=locality: built=true fp=true min=482ms pct=1.69%"
+  },
+  {
+    "ts_ms": 1781385331077,
+    "run": "swarm",
+    "iteration": 2,
+    "status": "info",
+    "function": "gather_idx_array_unchecked",
+    "note": "lens=dedup: built=true fp=true min=503ms pct=6.12%"
+  },
+  {
+    "ts_ms": 1781385435809,
+    "run": "swarm",
+    "iteration": 3,
+    "status": "info",
+    "function": "gather_idx_array_unchecked",
+    "note": "lens=algorithmic: built=true fp=true min=495ms pct=4.43%"
   }
 ]
