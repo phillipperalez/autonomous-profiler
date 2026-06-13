@@ -1,6 +1,6 @@
 {
   "id": "run-phase-761350",
-  "workload": "run_phase \u00b7 flights-1m.parquet (cpu)",
+  "workload": "run_phase · flights-1m.parquet (cpu)",
   "backend": "samply",
   "kind": "cpu",
   "unit": "samples",
@@ -11,7 +11,7 @@
   "git": {
     "commit": "79790031b06b0d424c547d7e43036c217a6af95b",
     "short": "7979003",
-    "subject": "perf(philtool_core): compute_pearson_correlation \u2014 null-free contiguous-slice fast path avoids per-element Option iterator overhead (flights-1m -3.2%, RAM 669MB)",
+    "subject": "perf(philtool_core): compute_pearson_correlation — null-free contiguous-slice fast path avoids per-element Option iterator overhead (flights-1m -3.2%, RAM 669MB)",
     "dirty": false
   },
   "crate_rollup": [

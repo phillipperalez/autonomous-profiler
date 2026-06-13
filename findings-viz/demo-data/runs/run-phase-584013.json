@@ -1,6 +1,6 @@
 {
   "id": "run-phase-584013",
-  "workload": "run_phase \u00b7 flights-1m.parquet (cpu)",
+  "workload": "run_phase · flights-1m.parquet (cpu)",
   "backend": "samply",
   "kind": "cpu",
   "unit": "samples",
@@ -11,7 +11,7 @@
   "git": {
     "commit": "d31f7ba33c79e0b82f784298214b794c730de57e",
     "short": "d31f7ba",
-    "subject": "perf(philtool_core): detect_multivariate_outliers \u2014 hoist constant label format! out of outlier loop + null-free contiguous-slice matrix extraction (flights-1m -11.7%, RAM 553MB)",
+    "subject": "perf(philtool_core): detect_multivariate_outliers — hoist constant label format! out of outlier loop + null-free contiguous-slice matrix extraction (flights-1m -11.7%, RAM 553MB)",
     "dirty": false
   },
   "crate_rollup": [

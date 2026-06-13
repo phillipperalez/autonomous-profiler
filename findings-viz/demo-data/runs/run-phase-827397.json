@@ -1,6 +1,6 @@
 {
   "id": "run-phase-827397",
-  "workload": "run_phase \u00b7 flights-1m.parquet (cpu)",
+  "workload": "run_phase · flights-1m.parquet (cpu)",
   "backend": "samply",
   "kind": "cpu",
   "unit": "samples",
@@ -11,7 +11,7 @@
   "git": {
     "commit": "786a6223fe89b92153324c8a5b67b319abf2d12a",
     "short": "786a622",
-    "subject": "perf(philtool_core): build_top_anomalies \u2014 defer identical per-flag variables Vec<String> until after top-N truncation, eliminating ~80K column-name vector allocs/drops (flights-1m -10.3%, RAM 651MB)",
+    "subject": "perf(philtool_core): build_top_anomalies — defer identical per-flag variables Vec<String> until after top-N truncation, eliminating ~80K column-name vector allocs/drops (flights-1m -10.3%, RAM 651MB)",
     "dirty": false
   },
   "crate_rollup": [

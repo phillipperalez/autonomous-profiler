@@ -1,6 +1,6 @@
 {
   "id": "run-phase-648756",
-  "workload": "run_phase \u00b7 flights-1m.parquet (cpu)",
+  "workload": "run_phase · flights-1m.parquet (cpu)",
   "backend": "samply",
   "kind": "cpu",
   "unit": "samples",
@@ -11,7 +11,7 @@
   "git": {
     "commit": "9a8fa7f8a57a7f44a8512d4b78653d2e97fb23a8",
     "short": "9a8fa7f",
-    "subject": "perf(philtool_core): calculate_covariance_matrix \u2014 center each row once + symmetric upper-triangle accumulation over contiguous slices, avoiding O(ncols^2*nrows) redundant centering (flights-1m -4.8%, RAM 672MB)",
+    "subject": "perf(philtool_core): calculate_covariance_matrix — center each row once + symmetric upper-triangle accumulation over contiguous slices, avoiding O(ncols^2*nrows) redundant centering (flights-1m -4.8%, RAM 672MB)",
     "dirty": false
   },
   "crate_rollup": [

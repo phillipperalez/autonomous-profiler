@@ -59,7 +59,7 @@
     "git": {
       "commit": "d31f7ba33c79e0b82f784298214b794c730de57e",
       "short": "d31f7ba",
-      "subject": "perf(philtool_core): detect_multivariate_outliers \u2014 hoist constant label format! out of outlier loop + null-free contiguous-slice matrix extraction (flights-1m -11.7%, RAM 553MB)",
+      "subject": "perf(philtool_core): detect_multivariate_outliers — hoist constant label format! out of outlier loop + null-free contiguous-slice matrix extraction (flights-1m -11.7%, RAM 553MB)",
       "dirty": false
     }
   },
@@ -81,7 +81,7 @@
     "git": {
       "commit": "d31f7ba33c79e0b82f784298214b794c730de57e",
       "short": "d31f7ba",
-      "subject": "perf(philtool_core): detect_multivariate_outliers \u2014 hoist constant label format! out of outlier loop + null-free contiguous-slice matrix extraction (flights-1m -11.7%, RAM 553MB)",
+      "subject": "perf(philtool_core): detect_multivariate_outliers — hoist constant label format! out of outlier loop + null-free contiguous-slice matrix extraction (flights-1m -11.7%, RAM 553MB)",
       "dirty": false
     }
   },
@@ -103,7 +103,7 @@
     "git": {
       "commit": "79790031b06b0d424c547d7e43036c217a6af95b",
       "short": "7979003",
-      "subject": "perf(philtool_core): compute_pearson_correlation \u2014 null-free contiguous-slice fast path avoids per-element Option iterator overhead (flights-1m -3.2%, RAM 669MB)",
+      "subject": "perf(philtool_core): compute_pearson_correlation — null-free contiguous-slice fast path avoids per-element Option iterator overhead (flights-1m -3.2%, RAM 669MB)",
       "dirty": false
     }
   },
@@ -125,7 +125,7 @@
     "git": {
       "commit": "79790031b06b0d424c547d7e43036c217a6af95b",
       "short": "7979003",
-      "subject": "perf(philtool_core): compute_pearson_correlation \u2014 null-free contiguous-slice fast path avoids per-element Option iterator overhead (flights-1m -3.2%, RAM 669MB)",
+      "subject": "perf(philtool_core): compute_pearson_correlation — null-free contiguous-slice fast path avoids per-element Option iterator overhead (flights-1m -3.2%, RAM 669MB)",
       "dirty": false
     }
   },
@@ -147,7 +147,7 @@
     "git": {
       "commit": "a349a1af1ee038f90809930f3fde5572ddb16876",
       "short": "a349a1a",
-      "subject": "perf(philtool_core): detect_univariate_outliers \u2014 null-free contiguous-slice batch read avoids per-element Option filter_map collect (flights-1m -5.1%, RAM 654MB)",
+      "subject": "perf(philtool_core): detect_univariate_outliers — null-free contiguous-slice batch read avoids per-element Option filter_map collect (flights-1m -5.1%, RAM 654MB)",
       "dirty": false
     }
   },
@@ -169,7 +169,7 @@
     "git": {
       "commit": "a349a1af1ee038f90809930f3fde5572ddb16876",
       "short": "a349a1a",
-      "subject": "perf(philtool_core): detect_univariate_outliers \u2014 null-free contiguous-slice batch read avoids per-element Option filter_map collect (flights-1m -5.1%, RAM 654MB)",
+      "subject": "perf(philtool_core): detect_univariate_outliers — null-free contiguous-slice batch read avoids per-element Option filter_map collect (flights-1m -5.1%, RAM 654MB)",
       "dirty": false
     }
   },
@@ -191,7 +191,7 @@
     "git": {
       "commit": "f2d0542ec44d61f3be340ccbccde6a03c7e52660",
       "short": "f2d0542",
-      "subject": "perf(philtool_core): extract_numeric_matrix \u2014 null-free contiguous-slice fast path avoids per-element ChunkedArray::get on 1M-row sample (flights-1m -11.9%, RAM 652MB)",
+      "subject": "perf(philtool_core): extract_numeric_matrix — null-free contiguous-slice fast path avoids per-element ChunkedArray::get on 1M-row sample (flights-1m -11.9%, RAM 652MB)",
       "dirty": false
     }
   },
@@ -213,7 +213,7 @@
     "git": {
       "commit": "f2d0542ec44d61f3be340ccbccde6a03c7e52660",
       "short": "f2d0542",
-      "subject": "perf(philtool_core): extract_numeric_matrix \u2014 null-free contiguous-slice fast path avoids per-element ChunkedArray::get on 1M-row sample (flights-1m -11.9%, RAM 652MB)",
+      "subject": "perf(philtool_core): extract_numeric_matrix — null-free contiguous-slice fast path avoids per-element ChunkedArray::get on 1M-row sample (flights-1m -11.9%, RAM 652MB)",
       "dirty": false
     }
   },
@@ -235,7 +235,7 @@
     "git": {
       "commit": "9a8fa7f8a57a7f44a8512d4b78653d2e97fb23a8",
       "short": "9a8fa7f",
-      "subject": "perf(philtool_core): calculate_covariance_matrix \u2014 center each row once + symmetric upper-triangle accumulation over contiguous slices, avoiding O(ncols^2*nrows) redundant centering (flights-1m -4.8%, RAM 672MB)",
+      "subject": "perf(philtool_core): calculate_covariance_matrix — center each row once + symmetric upper-triangle accumulation over contiguous slices, avoiding O(ncols^2*nrows) redundant centering (flights-1m -4.8%, RAM 672MB)",
       "dirty": false
     }
   },
@@ -257,7 +257,7 @@
     "git": {
       "commit": "9a8fa7f8a57a7f44a8512d4b78653d2e97fb23a8",
       "short": "9a8fa7f",
-      "subject": "perf(philtool_core): calculate_covariance_matrix \u2014 center each row once + symmetric upper-triangle accumulation over contiguous slices, avoiding O(ncols^2*nrows) redundant centering (flights-1m -4.8%, RAM 672MB)",
+      "subject": "perf(philtool_core): calculate_covariance_matrix — center each row once + symmetric upper-triangle accumulation over contiguous slices, avoiding O(ncols^2*nrows) redundant centering (flights-1m -4.8%, RAM 672MB)",
       "dirty": false
     }
   },
@@ -279,7 +279,7 @@
     "git": {
       "commit": "786a6223fe89b92153324c8a5b67b319abf2d12a",
       "short": "786a622",
-      "subject": "perf(philtool_core): build_top_anomalies \u2014 defer identical per-flag variables Vec<String> until after top-N truncation, eliminating ~80K column-name vector allocs/drops (flights-1m -10.3%, RAM 651MB)",
+      "subject": "perf(philtool_core): build_top_anomalies — defer identical per-flag variables Vec<String> until after top-N truncation, eliminating ~80K column-name vector allocs/drops (flights-1m -10.3%, RAM 651MB)",
       "dirty": false
     }
   },
@@ -301,7 +301,27 @@
     "git": {
       "commit": "786a6223fe89b92153324c8a5b67b319abf2d12a",
       "short": "786a622",
-      "subject": "perf(philtool_core): build_top_anomalies \u2014 defer identical per-flag variables Vec<String> until after top-N truncation, eliminating ~80K column-name vector allocs/drops (flights-1m -10.3%, RAM 651MB)",
+      "subject": "perf(philtool_core): build_top_anomalies — defer identical per-flag variables Vec<String> until after top-N truncation, eliminating ~80K column-name vector allocs/drops (flights-1m -10.3%, RAM 651MB)",
+      "dirty": false
+    }
+  },
+  {
+    "label": "polars-taxi",
+    "runs": 3,
+    "min_ms": 149,
+    "median_ms": 156,
+    "mean_ms": 305,
+    "samples_ms": [
+      611,
+      149,
+      156
+    ],
+    "peak_rss_bytes": 555761664,
+    "created_at_ms": 1781382265412,
+    "git": {
+      "commit": "90c7f9f655597d25fb0bb4225d56fe6aea67025c",
+      "short": "90c7f9f",
+      "subject": "perf: Prevent empty chunks from triggering copy in rechunk (#27953)",
       "dirty": false
     }
   }

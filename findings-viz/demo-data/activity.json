@@ -13,7 +13,7 @@
     "iteration": 1,
     "status": "accepted",
     "function": "detect_multivariate_outliers",
-    "note": "flights-1m -9.6% (canonical) \u00b7 RAM 553MB \u00b7 hoisted constant format! out of per-outlier loop + null-free cont_slice matrix extraction; memory unchanged",
+    "note": "flights-1m -9.6% (canonical) · RAM 553MB · hoisted constant format! out of per-outlier loop + null-free cont_slice matrix extraction; memory unchanged",
     "commit": "d31f7ba"
   },
   {
@@ -30,7 +30,7 @@
     "iteration": 2,
     "status": "accepted",
     "function": "compute_pearson_correlation",
-    "note": "flights-1m -3.7% \u00b7 RAM 684MB \u00b7 null-free contiguous-slice fast path, slight RAM bump from rechunk",
+    "note": "flights-1m -3.7% · RAM 684MB · null-free contiguous-slice fast path, slight RAM bump from rechunk",
     "commit": "7979003"
   },
   {
@@ -63,7 +63,7 @@
     "iteration": 4,
     "status": "accepted",
     "function": "detect_univariate_outliers",
-    "note": "flights-1m -4.2% \u00b7 RAM 685MB \u00b7 null-free cont_slice read avoids Option filter_map collect; guard -4.8%",
+    "note": "flights-1m -4.2% · RAM 685MB · null-free cont_slice read avoids Option filter_map collect; guard -4.8%",
     "commit": "a349a1a"
   },
   {
@@ -112,7 +112,7 @@
     "iteration": 7,
     "status": "accepted",
     "function": "extract_numeric_matrix",
-    "note": "flights-1m -9.4% \u00b7 RAM 669MB \u00b7 null-free cont_slice sample extraction; tradeoff: rechunk copies to contiguous buffer, RAM well under ceiling",
+    "note": "flights-1m -9.4% · RAM 669MB · null-free cont_slice sample extraction; tradeoff: rechunk copies to contiguous buffer, RAM well under ceiling",
     "commit": "f2d0542"
   },
   {
@@ -145,7 +145,7 @@
     "iteration": 9,
     "status": "accepted",
     "function": "calculate_covariance_matrix",
-    "note": "flights-1m -3.1% \u00b7 RAM 672MB \u00b7 center-once + symmetric upper-triangle accumulation; ~2x less centering work, no extra memory",
+    "note": "flights-1m -3.1% · RAM 672MB · center-once + symmetric upper-triangle accumulation; ~2x less centering work, no extra memory",
     "commit": "9a8fa7f"
   },
   {
@@ -162,7 +162,7 @@
     "iteration": 10,
     "status": "accepted",
     "function": "build_top_anomalies",
-    "note": "flights-1m -10.3% \u00b7 RAM 651MB \u00b7 trades nothing: defers ~80K identical column-name Vec<String> allocs/drops until after top-N truncation",
+    "note": "flights-1m -10.3% · RAM 651MB · trades nothing: defers ~80K identical column-name Vec<String> allocs/drops until after top-N truncation",
     "commit": "786a622"
   },
   {
@@ -179,7 +179,7 @@
     "iteration": 11,
     "status": "rejected",
     "function": "mahalanobis_distances_vectorized",
-    "note": "flights-1m +0.4% (253ms vs 252 baseline); per-row dot loop is negligible vs polars collect + ndarray BLAS dot \u2014 no measurable win"
+    "note": "flights-1m +0.4% (253ms vs 252 baseline); per-row dot loop is negligible vs polars collect + ndarray BLAS dot — no measurable win"
   },
   {
     "ts_ms": 1781379986829,
@@ -195,6 +195,54 @@
     "iteration": 12,
     "status": "rejected",
     "function": "mahalanobis_distances_vectorized",
-    "note": "flights-1m +5.2% regression: fused scalar c\u1d40\u03a3\u207b\u00b9c loop loses to BLAS gemm dot; reverted"
+    "note": "flights-1m +5.2% regression: fused scalar cᵀΣ⁻¹c loop loses to BLAS gemm dot; reverted"
+  },
+  {
+    "ts_ms": 1781381512492,
+    "run": "analyzer-r2",
+    "iteration": 1,
+    "status": "working",
+    "function": "mahalanobis_distances_vectorized",
+    "note": "optimizing mahalanobis_distances_vectorized: fuse per-row D-squared via element-wise multiply + sum_axis over contiguous arrays, drop manual row-dot loop"
+  },
+  {
+    "ts_ms": 1781381573106,
+    "run": "analyzer-r2",
+    "iteration": 1,
+    "status": "rejected",
+    "function": "mahalanobis_distances_vectorized",
+    "note": "flights-1m only -2.0% (need <=-3.0%); editable loop too small a share, self-time dominated by ndarray mean_axis/sub. guard +0.3%"
+  },
+  {
+    "ts_ms": 1781381621429,
+    "run": "analyzer-r2",
+    "iteration": 2,
+    "status": "working",
+    "function": "mahalanobis_distances_vectorized",
+    "note": "optimizing mahalanobis_distances_vectorized: fuse center+transform+dot into per-row pass over contiguous slices, eliminating two large N×C ndarray allocations and the broadcast subtraction zip_mut pass"
+  },
+  {
+    "ts_ms": 1781381682435,
+    "run": "analyzer-r2",
+    "iteration": 2,
+    "status": "rejected",
+    "function": "mahalanobis_distances_vectorized",
+    "note": "fused scalar per-row center+solve was slower than ndarray BLAS GEMM (.dot): flights-1m +6.7% (269ms vs 252 baseline). Reverted."
+  },
+  {
+    "ts_ms": 1781381729864,
+    "run": "analyzer-r2",
+    "iteration": 3,
+    "status": "working",
+    "function": "mahalanobis_distances_vectorized",
+    "note": "optimizing mahalanobis_distances_vectorized: replace per-row ndarray view+dot loop with contiguous-slice element-wise multiply-sum over row-major x_centered/y"
+  },
+  {
+    "ts_ms": 1781381790914,
+    "run": "analyzer-r2",
+    "iteration": 3,
+    "status": "rejected",
+    "function": "mahalanobis_distances_vectorized",
+    "note": "contiguous-slice per-row dot regressed flights-1m +3.2% (min 260ms vs 252 baseline); dominant cost is ndarray matrix dot/mean_axis (non-editable), not the per-row reduction"
   }
 ]

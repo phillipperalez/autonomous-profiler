@@ -1,6 +1,6 @@
 {
   "id": "run-phase-410418",
-  "workload": "run_phase \u00b7 flights-1m.parquet (cpu)",
+  "workload": "run_phase · flights-1m.parquet (cpu)",
   "backend": "samply",
   "kind": "cpu",
   "unit": "samples",
@@ -11,7 +11,7 @@
   "git": {
     "commit": "f2d0542ec44d61f3be340ccbccde6a03c7e52660",
     "short": "f2d0542",
-    "subject": "perf(philtool_core): extract_numeric_matrix \u2014 null-free contiguous-slice fast path avoids per-element ChunkedArray::get on 1M-row sample (flights-1m -11.9%, RAM 652MB)",
+    "subject": "perf(philtool_core): extract_numeric_matrix — null-free contiguous-slice fast path avoids per-element ChunkedArray::get on 1M-row sample (flights-1m -11.9%, RAM 652MB)",
     "dirty": false
   },
   "crate_rollup": [

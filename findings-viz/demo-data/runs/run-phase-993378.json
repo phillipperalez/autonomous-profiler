@@ -1,6 +1,6 @@
 {
   "id": "run-phase-993378",
-  "workload": "run_phase \u00b7 flights-1m.parquet (cpu)",
+  "workload": "run_phase · flights-1m.parquet (cpu)",
   "backend": "samply",
   "kind": "cpu",
   "unit": "samples",
@@ -11,7 +11,7 @@
   "git": {
     "commit": "a349a1af1ee038f90809930f3fde5572ddb16876",
     "short": "a349a1a",
-    "subject": "perf(philtool_core): detect_univariate_outliers \u2014 null-free contiguous-slice batch read avoids per-element Option filter_map collect (flights-1m -5.1%, RAM 654MB)",
+    "subject": "perf(philtool_core): detect_univariate_outliers — null-free contiguous-slice batch read avoids per-element Option filter_map collect (flights-1m -5.1%, RAM 654MB)",
     "dirty": false
   },
   "crate_rollup": [
