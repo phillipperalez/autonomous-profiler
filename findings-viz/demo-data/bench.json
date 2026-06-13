@@ -416,5 +416,107 @@
       "subject": "perf(philtool_core): ExactQuantileCalculator::quantiles — swarm winner [algorithmic] (flights -6.746031746031746%) [autoperf]",
       "dirty": false
     }
+  },
+  {
+    "label": "taxi-full",
+    "runs": 3,
+    "min_ms": 23247,
+    "median_ms": 23560,
+    "mean_ms": 23752,
+    "samples_ms": [
+      24450,
+      23560,
+      23247
+    ],
+    "peak_rss_bytes": 4585504768,
+    "created_at_ms": 1781392005753,
+    "git": {
+      "commit": "1c99b0ecd8fee5567a23e293b63a84c829b643ac",
+      "short": "1c99b0e",
+      "subject": "perf(philtool_core): ExactQuantileCalculator::quantiles — swarm winner [algorithmic] (flights -6.746031746031746%) [autoperf]",
+      "dirty": true
+    }
+  },
+  {
+    "label": "flights-full",
+    "runs": 3,
+    "min_ms": 397,
+    "median_ms": 398,
+    "mean_ms": 862,
+    "samples_ms": [
+      1791,
+      398,
+      397
+    ],
+    "peak_rss_bytes": 694484992,
+    "created_at_ms": 1781392009425,
+    "git": {
+      "commit": "1c99b0ecd8fee5567a23e293b63a84c829b643ac",
+      "short": "1c99b0e",
+      "subject": "perf(philtool_core): ExactQuantileCalculator::quantiles — swarm winner [algorithmic] (flights -6.746031746031746%) [autoperf]",
+      "dirty": true
+    }
+  },
+  {
+    "label": "superstore-full",
+    "runs": 5,
+    "min_ms": 5583,
+    "median_ms": 5621,
+    "mean_ms": 5887,
+    "samples_ms": [
+      6993,
+      5624,
+      5621,
+      5583,
+      5614
+    ],
+    "peak_rss_bytes": 69091328,
+    "created_at_ms": 1781392039683,
+    "git": {
+      "commit": "1c99b0ecd8fee5567a23e293b63a84c829b643ac",
+      "short": "1c99b0e",
+      "subject": "perf(philtool_core): ExactQuantileCalculator::quantiles — swarm winner [algorithmic] (flights -6.746031746031746%) [autoperf]",
+      "dirty": true
+    }
+  },
+  {
+    "label": "taxi-full",
+    "runs": 3,
+    "min_ms": 21790,
+    "median_ms": 21954,
+    "mean_ms": 22295,
+    "samples_ms": [
+      23142,
+      21954,
+      21790
+    ],
+    "peak_rss_bytes": 3953836032,
+    "created_at_ms": 1781392763453,
+    "git": {
+      "commit": "a769d6446141088a86eacacb3468fafa67c91531",
+      "short": "a769d64",
+      "subject": "perf(philtool_core): ryu-formatting — materialize phase4 segmentation frame once to avoid re-running numeric->String casts per group_by (taxi-full -5.66%) [autoperf]",
+      "dirty": false
+    }
+  },
+  {
+    "label": "superstore-full",
+    "runs": 3,
+    "min_ms": 5551,
+    "median_ms": 5556,
+    "mean_ms": 6010,
+    "samples_ms": [
+      6924,
+      5551,
+      5556
+    ],
+    "peak_rss_bytes": 63881216,
+    "created_at_ms": 1781392782291,
+    "git": {
+      "commit": "a769d6446141088a86eacacb3468fafa67c91531",
+      "short": "a769d64",
+      "subject": "perf(philtool_core): ryu-formatting — materialize phase4 segmentation frame once to avoid re-running numeric->String casts per group_by (taxi-full -5.66%) [autoperf]",
+      "dirty": false
+    }
   }
 ]

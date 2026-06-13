@@ -1,5 +1,43 @@
 [
   {
+    "id": "run-full-815768",
+    "workload": "run_full · nyc-taxi.parquet (cpu)",
+    "backend": "samply",
+    "kind": "cpu",
+    "unit": "samples",
+    "total_weight": 37180328,
+    "duration_ms": 28402,
+    "created_at_ms": 1781392815768,
+    "hotspot_count": 50,
+    "top_function": "core::ops::function::impls::<impl core::ops::function::FnMut<A> for &F>::call_mut",
+    "top_crate": "core",
+    "git": {
+      "commit": "a769d6446141088a86eacacb3468fafa67c91531",
+      "short": "a769d64",
+      "subject": "perf(philtool_core): ryu-formatting — materialize phase4 segmentation frame once to avoid re-running numeric->String casts per group_by (taxi-full -5.66%) [autoperf]",
+      "dirty": false
+    }
+  },
+  {
+    "id": "run-full-933656",
+    "workload": "run_full · nyc-taxi.parquet (cpu)",
+    "backend": "samply",
+    "kind": "cpu",
+    "unit": "samples",
+    "total_weight": 45687666,
+    "duration_ms": 30135,
+    "created_at_ms": 1781391933656,
+    "hotspot_count": 50,
+    "top_function": "core::ops::function::impls::<impl core::ops::function::FnMut<A> for &F>::call_mut",
+    "top_crate": "core",
+    "git": {
+      "commit": "1c99b0ecd8fee5567a23e293b63a84c829b643ac",
+      "short": "1c99b0e",
+      "subject": "perf(philtool_core): ExactQuantileCalculator::quantiles — swarm winner [algorithmic] (flights -6.746031746031746%) [autoperf]",
+      "dirty": true
+    }
+  },
+  {
     "id": "run-phase-232248",
     "workload": "run_phase · flights-1m.parquet (cpu)",
     "backend": "samply",

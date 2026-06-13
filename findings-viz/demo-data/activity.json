@@ -526,5 +526,38 @@
     "status": "rejected",
     "function": "philtool_core::analysis::anomaly::analyze_anomalies",
     "note": "flights +6.4% (250ms vs 235ms baseline); 4x manual unroll regressed, did not meet -3.0% gate"
+  },
+  {
+    "ts_ms": 1781392163448,
+    "run": "full-fruit",
+    "iteration": 1,
+    "status": "working",
+    "function": "ryu-formatting",
+    "note": "Eliminate the hot float->string formatting (21.5% of the pipeline is in `ryu`)"
+  },
+  {
+    "ts_ms": 1781392821033,
+    "run": "full-fruit",
+    "iteration": 1,
+    "status": "accepted",
+    "function": "ryu-formatting",
+    "note": "taxi-full -5.66%",
+    "commit": "a769d64"
+  },
+  {
+    "ts_ms": 1781392850219,
+    "run": "full-fruit",
+    "iteration": 2,
+    "status": "working",
+    "function": "find_best_numeric_split",
+    "note": "Reuse buffers / avoid re-sorting in find_best_numeric_split (7.7% total)"
+  },
+  {
+    "ts_ms": 1781393007985,
+    "run": "full-fruit",
+    "iteration": 2,
+    "status": "rejected",
+    "function": "find_best_numeric_split",
+    "note": "taxi -0.02% (below -3.0% threshold)"
   }
 ]
