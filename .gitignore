@@ -25,3 +25,6 @@ autonomous-profiler/data/
 /polars-wt*/
 /polars-bench-wt*/
 /.swarm-target/
+
+# chat exports land at repo root; keep them out unless intentionally placed in hackday/
+/20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]-*.txt
