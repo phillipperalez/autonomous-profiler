@@ -47,6 +47,17 @@ Everything is **gated and reversible**: a change is kept only if it passes the c
 gate *and* improves the benchmark without regressing guard datasets or breaching a RAM
 budget. Bench timing is always taken **serially/quiesced** so numbers are trustworthy.
 
+**Drilling in — `ap asm`:** when a function is hot, disassemble it and read *why*. It
+shells out to `nm` + `objdump` to extract just that one function (Mach-O or ELF) and reports
+an instruction mix — scalar-FP vs NEON-SIMD, memory-bound, branch-heavy, `fdiv` — with a
+one-line verdict. Example: it flagged polars' `pairwise_sum` reduction as *"57% scalar-FP,
+NO NEON SIMD — the hot loop did not vectorize"*. (And to dispel a myth: ARM/Apple-Silicon
+**does** have SIMD — 128-bit NEON, on by default — it's just narrower than x86 AVX.)
+
+```bash
+ap asm <binary> --fn <name-substring>   # disasm + why-hot instruction-mix read
+```
+
 ### Quick start
 
 ```bash

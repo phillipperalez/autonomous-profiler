@@ -34,6 +34,9 @@ enum Cmd {
     Bench(BenchArgs),
     /// Append an event to the dashboard activity feed (what the loop is doing).
     Activity(ActivityArgs),
+    /// Disassemble a hot function from a binary + show an instruction-mix "why-hot"
+    /// read (scalar-vs-NEON, memory-bound, branch-heavy, fdiv).
+    Asm(AsmArgs),
 }
 
 #[derive(Copy, Clone, ValueEnum)]
@@ -138,6 +141,21 @@ struct BenchArgs {
     repo: Option<PathBuf>,
     #[arg(long, default_value = "data")]
     findings_dir: PathBuf,
+}
+
+#[derive(Args)]
+struct AsmArgs {
+    /// Binary to disassemble (built with the `profiling` profile for symbols).
+    bin: PathBuf,
+    /// Function to find — matched as a substring of the demangled name.
+    #[arg(long = "fn")]
+    func: String,
+    /// Max disassembly lines to print (use --full for everything).
+    #[arg(long, default_value_t = 60)]
+    max_lines: usize,
+    /// Print the entire function disassembly.
+    #[arg(long, default_value_t = false)]
+    full: bool,
 }
 
 #[derive(Args)]
@@ -249,6 +267,23 @@ fn main() -> Result<()> {
                 commit: a.commit.clone(),
             };
             pipeline::append_activity(&a.findings_dir, entry)?;
+        }
+        Cmd::Asm(a) => {
+            let r = ap_core::disasm::disassemble_fn(&a.bin, &a.func)?;
+            println!("# {}", r.demangled);
+            let m = &r.mix;
+            println!(
+                "instructions: {} · NEON-SIMD: {} · scalar-FP: {} · mem(ld/st): {} · branch/cmp: {} · fdiv: {}",
+                m.total, m.simd, m.scalar_fp, m.mem, m.branch, m.fdiv
+            );
+            println!("why-hot: {}\n", m.why_hot());
+            let n = if a.full { r.lines.len() } else { a.max_lines.min(r.lines.len()) };
+            for line in &r.lines[..n] {
+                println!("{}", line.trim_end());
+            }
+            if n < r.lines.len() {
+                println!("… {} more lines (--full for all)", r.lines.len() - n);
+            }
         }
     }
     Ok(())

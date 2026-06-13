@@ -11,6 +11,7 @@
 pub mod analyze;
 pub mod collector;
 pub mod compile;
+pub mod disasm;
 pub mod language;
 pub mod model;
 pub mod symbolize;
