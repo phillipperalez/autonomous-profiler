@@ -1,0 +1,16 @@
+[package]
+name = "ap-cli"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "ap"
+path = "src/main.rs"
+
+[dependencies]
+ap-core = { path = "../ap-core" }
+ap-collectors = { path = "../ap-collectors" }
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+clap = { version = "4", features = ["derive"] }

@@ -1,0 +1,12 @@
+[package]
+name = "ap-collectors"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+ap-core = { path = "../ap-core" }
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tempfile = "3"
+which = "6"

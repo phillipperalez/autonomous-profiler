@@ -1,0 +1,21 @@
+# Bench target (separate repo + large data) — not part of this project
+/analyzer/
+
+# Rust build output
+**/target/
+
+# Profiler run data (live, regenerated) + caches
+autonomous-profiler/data/
+**/.ap/
+
+# Frontend
+**/node_modules/
+**/dist/
+**/.vite/
+
+# Trial bench scratch
+/tmp/ap-trial-*
+
+# OS / editor
+.DS_Store
+*.swp

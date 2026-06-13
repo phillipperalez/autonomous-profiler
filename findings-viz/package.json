@@ -1,0 +1,20 @@
+{
+  "name": "findings-viz",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Dashboard for autonomous-profiler findings",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "solid-js": "^1.9.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vite": "^6.0.3",
+    "vite-plugin-solid": "^2.11.0"
+  }
+}
