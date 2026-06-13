@@ -7,4 +7,5 @@ edition.workspace = true
 anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+toml.workspace = true
 rustc-demangle = "0.1"

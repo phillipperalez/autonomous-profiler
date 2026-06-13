@@ -1,0 +1,38 @@
+# autoperf.toml — config for the autonomous-profiler improve loop.
+# Drop this in the root of the Rust project you want to optimize, then run the
+# `/autoperf` skill (or invoke the workflow). See README "Run it on your own project".
+
+[target]
+dir  = "."          # cargo project to profile/optimize (relative to this file, or absolute)
+# repo = "."        # git repo to commit/stamp against, if it differs from `dir`
+lang = "rust"
+
+[gate]
+# Correctness gate — choose ONE:
+#  (a) internal target you own: a command that must exit 0.
+test = "cargo test"
+#  (b) external/library target: the workload prints a deterministic `FINGERPRINT=...`
+#      line the loop matches bit-for-bit against the baseline.
+# fingerprint = true
+
+[improve]
+ram_budget_mb       = 8192   # peak-RSS ceiling; trade RAM for speed only under this
+min_improvement_pct = 3.0    # a winner must beat baseline by at least this on the primary
+guard_regression_pct = 2.0   # any guard workload regressing more than this fails the change
+lenses = ["algorithmic", "locality", "dedup", "datashape", "branchflat"]
+# off_limits = ["already_optimized_fn"]   # functions the loop should not re-touch
+
+# One [[workload]] per benchmark. The FIRST (or the one with primary = true) is the
+# optimization target; the rest are guards that must not regress.
+[[workload]]
+label   = "primary"
+example = "my_bench"            # cargo example name  (or:  bin = "target/release/foo")
+args    = ["data/input.parquet"]
+runs    = 5
+primary = true
+
+# [[workload]]
+# label   = "guard-small"
+# example = "my_bench"
+# args    = ["data/small.parquet"]
+# runs    = 3

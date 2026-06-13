@@ -37,6 +37,30 @@ enum Cmd {
     /// Disassemble a hot function from a binary + show an instruction-mix "why-hot"
     /// read (scalar-vs-NEON, memory-bound, branch-heavy, fdiv).
     Asm(AsmArgs),
+    /// Write a starter `autoperf.toml` so the improve loop can run on this project.
+    Init(InitArgs),
+    /// Parse + validate `autoperf.toml` and print it normalized (paths resolved).
+    /// `--json` feeds the workflow/skill; default is a human summary.
+    Config(ConfigArgs),
+}
+
+#[derive(Args)]
+struct InitArgs {
+    /// Directory to write autoperf.toml into (default: current directory).
+    #[arg(default_value = ".")]
+    dir: PathBuf,
+    /// Overwrite an existing autoperf.toml.
+    #[arg(long, default_value_t = false)]
+    force: bool,
+}
+
+#[derive(Args)]
+struct ConfigArgs {
+    /// Path to autoperf.toml or a directory containing it (default: ./autoperf.toml).
+    path: Option<PathBuf>,
+    /// Emit normalized JSON (for the workflow/skill) instead of a human summary.
+    #[arg(long, default_value_t = false)]
+    json: bool,
 }
 
 #[derive(Copy, Clone, ValueEnum)]
@@ -285,6 +309,65 @@ fn main() -> Result<()> {
                 println!("… {} more lines (--full for all)", r.lines.len() - n);
             }
         }
+        Cmd::Init(a) => do_init(&a)?,
+        Cmd::Config(a) => do_config(&a)?,
+    }
+    Ok(())
+}
+
+fn do_init(a: &InitArgs) -> Result<()> {
+    let dest = a.dir.join("autoperf.toml");
+    if dest.exists() && !a.force {
+        bail!("{} already exists (use --force to overwrite)", dest.display());
+    }
+    std::fs::write(&dest, ap_core::config::starter_toml())?;
+    println!("wrote {}", dest.display());
+    println!("Edit it (gate + at least one [[workload]]), then `ap config` to validate.");
+    Ok(())
+}
+
+fn do_config(a: &ConfigArgs) -> Result<()> {
+    let path = ap_core::config::AutoperfConfig::locate(a.path.as_deref())?;
+    let cfg = ap_core::config::AutoperfConfig::load(&path)?;
+    if a.json {
+        println!("{}", serde_json::to_string_pretty(&cfg)?);
+        return Ok(());
+    }
+    let p = cfg.primary_index();
+    let gate = match (&cfg.gate.test, cfg.gate.fingerprint) {
+        (Some(t), _) => format!("test: `{t}`"),
+        (None, true) => "fingerprint (deterministic output match)".to_string(),
+        _ => "(none)".to_string(),
+    };
+    println!("autoperf.toml ✓  ({})", path.display());
+    println!("  target : {} (lang {})", cfg.target.dir, cfg.target.lang);
+    if let Some(r) = &cfg.target.repo {
+        if r != &cfg.target.dir {
+            println!("  repo   : {r}");
+        }
+    }
+    println!("  gate   : {gate}");
+    println!(
+        "  budget : RAM {} MB · win ≥ {:.1}% · guard regress < {:.1}%",
+        cfg.improve.ram_budget_mb, cfg.improve.min_improvement_pct, cfg.improve.guard_regression_pct
+    );
+    println!("  lenses : {}", cfg.improve.lenses.join(", "));
+    if !cfg.improve.off_limits.is_empty() {
+        println!("  off-limits: {}", cfg.improve.off_limits.join(", "));
+    }
+    println!("  workloads:");
+    for (i, w) in cfg.workloads.iter().enumerate() {
+        let kind = w
+            .example
+            .as_ref()
+            .map(|e| format!("example {e}"))
+            .or_else(|| w.bin.as_ref().map(|b| format!("bin {b}")))
+            .unwrap_or_default();
+        let role = if i == p { "PRIMARY (optimize)" } else { "guard" };
+        println!(
+            "    - {} [{role}] · {kind} · runs {} · args {:?}",
+            w.label, w.runs, w.args
+        );
     }
     Ok(())
 }

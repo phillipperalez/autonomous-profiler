@@ -73,6 +73,53 @@ cd ../findings-viz && pnpm install && pnpm dev      # dashboard on :5180
 
 ---
 
+## Run it on your own project
+
+The tool is **generic** — nothing about the target is hardcoded. To point it at any Rust crate
+or workspace, drop one config file in your project and invoke the skill:
+
+```bash
+# 1. build the tool once
+cd autonomous-profiler && cargo build --release && cargo install samply
+
+# 2. in YOUR Rust project, create + edit the config
+ap init                 # writes a starter autoperf.toml
+$EDITOR autoperf.toml   # set the gate + at least one [[workload]]
+ap config               # validate it (prints a normalized summary)
+
+# 3. run the autonomous improve loop
+#    in Claude Code:  /autoperf
+```
+
+`autoperf.toml` is the whole contract (see [`examples/autoperf.toml`](examples/autoperf.toml)):
+
+```toml
+[target]
+dir = "."                              # the cargo project (workspace root for a workspace)
+
+[gate]                                  # how a change is proven correct — pick ONE
+test = "cargo test -p mycrate"          #   (a) internal target you own → real test suite
+# fingerprint = true                    #   (b) external target → match a deterministic FINGERPRINT= line
+
+[improve]
+ram_budget_mb = 8192                     # trade RAM for speed only under this ceiling
+min_improvement_pct = 3.0                # a winner must beat baseline by this on the primary
+guard_regression_pct = 2.0              # no guard workload may regress past this
+lenses = ["algorithmic","locality","dedup","datashape","branchflat"]
+
+[[workload]]                             # FIRST workload = optimization target; rest = guards
+label = "primary"
+example = "my_bench"                     # a cargo example (or: bin = "target/release/foo")
+args = ["data/input.parquet"]
+primary = true
+```
+
+The `/autoperf` skill reads this via `ap config --json`, then runs the generic, config-driven
+[`workflows/autoperf-improve.js`](workflows/autoperf-improve.js) — same gated, reversible loop
+shown below, on *your* code. Commits are **local only**; nothing is pushed.
+
+---
+
 ## Architecture (component view)
 
 ```mermaid
