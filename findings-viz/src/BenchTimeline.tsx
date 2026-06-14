@@ -1,5 +1,5 @@
 import { For, Show, createMemo } from "solid-js";
-import type { BenchRecord } from "./types";
+import type { BenchRecord, DiffMap } from "./types";
 import { fmtTime, fmtMB } from "./util";
 
 // Group bench points by series label, each sorted oldest -> newest.
@@ -15,20 +15,33 @@ function groupByLabel(records: BenchRecord[]): [string, BenchRecord[]][] {
   return [...map.entries()];
 }
 
-export function BenchTimeline(props: { records: BenchRecord[] }) {
+export function BenchTimeline(props: {
+  records: BenchRecord[];
+  diffs?: DiffMap;
+  onOpen?: (sha: string) => void;
+}) {
   const groups = createMemo(() => groupByLabel(props.records));
   return (
     <div class="win timeline">
       <div class="timeline-head">
         <h2>benchmark timeline</h2>
-        <span class="muted small">min ms per commit · lower is better</span>
+        <span class="muted small">min ms per commit · lower is better · click a win bar for its diff</span>
       </div>
-      <For each={groups()}>{([label, recs]) => <Series label={label} recs={recs} />}</For>
+      <For each={groups()}>
+        {([label, recs]) => (
+          <Series label={label} recs={recs} diffs={props.diffs} onOpen={props.onOpen} />
+        )}
+      </For>
     </div>
   );
 }
 
-function Series(props: { label: string; recs: BenchRecord[] }) {
+function Series(props: {
+  label: string;
+  recs: BenchRecord[];
+  diffs?: DiffMap;
+  onOpen?: (sha: string) => void;
+}) {
   const recs = () => props.recs;
   const max = createMemo(() => Math.max(...recs().map((r) => r.min_ms), 1));
   const first = () => recs()[0];
@@ -80,25 +93,33 @@ function Series(props: { label: string; recs: BenchRecord[] }) {
               prev && prev.peak_rss_bytes && r.peak_rss_bytes
                 ? r.peak_rss_bytes - prev.peak_rss_bytes
                 : 0;
+            const sha = r.git?.short;
+            const hasDiff = !!(sha && props.diffs && props.diffs[sha]);
             return (
-              <div class="bar-col" classList={{ best: isBest }}>
+              <div class="bar-col" classList={{ best: isBest, "has-diff": hasDiff }}>
                 <div class="bar-wrap">
                   <div
                     class={`tbar ${state}`}
+                    classList={{ clickable: hasDiff }}
                     style={{ height: `${h}%` }}
+                    onClick={() => hasDiff && props.onOpen?.(sha!)}
                     title={
                       `${r.git?.short ?? "?"}${r.git?.dirty ? "*" : ""} — ${r.git?.subject ?? ""}\n` +
                       `min ${r.min_ms} / median ${r.median_ms} / mean ${r.mean_ms} ms (${r.runs} runs)\n` +
                       `peak RSS ${fmtMB(r.peak_rss_bytes)}` +
                       (r.heap_peak_bytes ? ` · heap ${fmtMB(r.heap_peak_bytes)}` : "") +
-                      `\n${fmtTime(r.created_at_ms)}`
+                      `\n${fmtTime(r.created_at_ms)}` +
+                      (hasDiff ? "\n\nclick for diff" : "")
                     }
                   >
                     <span class="tbar-ms mono">{r.min_ms}</span>
+                    <Show when={hasDiff}>
+                      <span class="tbar-diff" title="has diff">⊕</span>
+                    </Show>
                   </div>
                 </div>
                 <div class="bar-foot">
-                  <span class="bar-sha mono">{r.git?.short || "—"}</span>
+                  <span class="bar-sha mono" classList={{ link: hasDiff }} onClick={() => hasDiff && props.onOpen?.(sha!)}>{r.git?.short || "—"}</span>
                   <Show when={prev}>
                     <span class={`bar-delta ${state}`}>
                       {delta <= 0 ? "" : "+"}

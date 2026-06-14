@@ -13,6 +13,7 @@ import type {
   Hotspot,
   BenchRecord,
   ActivityEntry,
+  DiffMap,
 } from "./types";
 import {
   shortFn,
@@ -24,6 +25,8 @@ import {
 } from "./util";
 import { BenchTimeline } from "./BenchTimeline";
 import { ActivityFeed } from "./ActivityFeed";
+import { WinsView } from "./WinsView";
+import { DiffModal } from "./DiffModal";
 
 const base = import.meta.env.BASE_URL;
 
@@ -38,6 +41,7 @@ async function getJSON<T>(path: string, fallback: T): Promise<T> {
 }
 
 const POLL_MS = 2500;
+type View = "wins" | "timeline" | "activity";
 
 export default function App() {
   // `tick` drives live polling: every resource keyed on it refetches.
@@ -56,8 +60,18 @@ export default function App() {
   const [activity] = createResource(tick, () =>
     getJSON<ActivityEntry[]>("activity.json", []),
   );
+  const [diffs] = createResource(tick, () => getJSON<DiffMap>("diffs.json", {}));
 
-  const [view, setView] = createSignal<"findings" | "activity">("findings");
+  const [view, setView] = createSignal<View>("wins");
+  const [present, setPresent] = createSignal(false);
+  const [diffSha, setDiffSha] = createSignal<string | null>(null);
+  const openDiff = (sha: string) => setDiffSha(sha);
+  const currentDiff = createMemo(() => {
+    const s = diffSha();
+    const d = diffs();
+    return s && d && d[s] ? d[s] : null;
+  });
+
   // Loop is "working" if the most recent activity event is a working status.
   const working = () => {
     const a = activity();
@@ -79,9 +93,31 @@ export default function App() {
 
   const runCount = () => index()?.length ?? 0;
   const latestCommit = () => index()?.[0]?.git;
+  const winCount = () =>
+    (activity() ?? []).filter((e) => e.status === "accepted" && e.commit).length;
+
+  // Keyboard: p = presentation, f = fullscreen, 1/2/3 = tabs.
+  onMount(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      if (e.key === "p") setPresent((v) => !v);
+      else if (e.key === "f") toggleFullscreen();
+      else if (e.key === "1") setView("wins");
+      else if (e.key === "2") setView("timeline");
+      else if (e.key === "3") setView("activity");
+    };
+    window.addEventListener("keydown", onKey);
+    onCleanup(() => window.removeEventListener("keydown", onKey));
+  });
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+    else document.exitFullscreen?.();
+  };
 
   return (
-    <div class="app">
+    <div class="app" classList={{ present: present() }}>
       <div class="bar">
         <div class="bar-left">
           <span class="ws">◈</span>
@@ -90,10 +126,16 @@ export default function App() {
           <span class="muted">findings</span>
         </div>
         <div class="bar-center">
+          <button class="tab" classList={{ active: view() === "wins" }} onClick={() => setView("wins")}>
+            wins
+            <Show when={winCount() > 0}>
+              <span class="tab-count">{winCount()}</span>
+            </Show>
+          </button>
           <button
             class="tab"
-            classList={{ active: view() === "findings" }}
-            onClick={() => setView("findings")}
+            classList={{ active: view() === "timeline" }}
+            onClick={() => setView("timeline")}
           >
             timeline
           </button>
@@ -127,61 +169,78 @@ export default function App() {
               {latestCommit()!.dirty ? "*" : ""}
             </span>
           </Show>
+          <button
+            class="iconbtn"
+            classList={{ on: present() }}
+            title="presentation mode (p)"
+            onClick={() => setPresent((v) => !v)}
+          >
+            ▣
+          </button>
+          <button class="iconbtn" title="fullscreen (f)" onClick={toggleFullscreen}>
+            ⛶
+          </button>
         </div>
       </div>
 
       <div class="body">
-        <aside class="sidebar">
-          <div class="sidebar-head">runs</div>
-          <div class="runs">
-            <Show
-              when={index()}
-              fallback={<div class="muted pad">loading…</div>}
-            >
-              <For
-                each={index()}
-                fallback={<div class="muted pad">no runs yet</div>}
-              >
-                {(e) => (
-                  <button
-                    class="run-card win"
-                    classList={{ active: e.id === currentId() }}
-                    onClick={() => setSelected(e.id)}
-                  >
-                    <div class="run-head">
-                      <span class={`pill ${e.kind}`}>{e.kind}</span>
-                      <span class="muted small">{fmtDuration(e.duration_ms)}</span>
-                    </div>
-                    <div class="run-workload">{e.workload}</div>
-                    <div class="run-meta small muted">
-                      {fmtWeight(e.total_weight, e.unit)} · {e.backend}
-                    </div>
-                    <div class="run-foot">
-                      <Show when={e.top_crate}>
-                        <span class="dot" style={{ background: crateColor(e.top_crate!) }} />
-                        <span class="small mono">{e.top_crate}</span>
-                      </Show>
-                      <Show when={e.git?.short}>
-                        <span class="small commit-tag">
-                          {e.git!.short}
-                          {e.git!.dirty ? "*" : ""}
-                        </span>
-                      </Show>
-                    </div>
-                  </button>
-                )}
-              </For>
-            </Show>
-          </div>
-        </aside>
+        <Show when={view() === "timeline" && !present()}>
+          <aside class="sidebar">
+            <div class="sidebar-head">runs</div>
+            <div class="runs">
+              <Show when={index()} fallback={<div class="muted pad">loading…</div>}>
+                <For each={index()} fallback={<div class="muted pad">no runs yet</div>}>
+                  {(e) => (
+                    <button
+                      class="run-card win"
+                      classList={{ active: e.id === currentId() }}
+                      onClick={() => setSelected(e.id)}
+                    >
+                      <div class="run-head">
+                        <span class={`pill ${e.kind}`}>{e.kind}</span>
+                        <span class="muted small">{fmtDuration(e.duration_ms)}</span>
+                      </div>
+                      <div class="run-workload">{e.workload}</div>
+                      <div class="run-meta small muted">
+                        {fmtWeight(e.total_weight, e.unit)} · {e.backend}
+                      </div>
+                      <div class="run-foot">
+                        <Show when={e.top_crate}>
+                          <span class="dot" style={{ background: crateColor(e.top_crate!) }} />
+                          <span class="small mono">{e.top_crate}</span>
+                        </Show>
+                        <Show when={e.git?.short}>
+                          <span class="small commit-tag">
+                            {e.git!.short}
+                            {e.git!.dirty ? "*" : ""}
+                          </span>
+                        </Show>
+                      </div>
+                    </button>
+                  )}
+                </For>
+              </Show>
+            </div>
+          </aside>
+        </Show>
 
         <main class="main">
-          <Show
-            when={view() === "findings"}
-            fallback={<ActivityFeed entries={activity() ?? []} />}
-          >
+          <Show when={view() === "wins"}>
+            <WinsView
+              activity={activity() ?? []}
+              diffs={diffs() ?? {}}
+              bench={bench() ?? []}
+              onOpen={openDiff}
+            />
+          </Show>
+
+          <Show when={view() === "activity"}>
+            <ActivityFeed entries={activity() ?? []} diffs={diffs() ?? {}} onOpen={openDiff} />
+          </Show>
+
+          <Show when={view() === "timeline"}>
             <Show when={bench() && bench()!.length > 0}>
-              <BenchTimeline records={bench()!} />
+              <BenchTimeline records={bench()!} diffs={diffs() ?? {}} onOpen={openDiff} />
             </Show>
 
             <Show
@@ -204,6 +263,8 @@ export default function App() {
           </Show>
         </main>
       </div>
+
+      <DiffModal diff={currentDiff()} onClose={() => setDiffSha(null)} />
     </div>
   );
 }

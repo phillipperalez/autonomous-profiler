@@ -37,8 +37,9 @@ body,
 body {
   background: var(--gap-bg);
   color: var(--fg);
-  font: 13px/1.5 var(--sans);
+  font: 13.5px/1.55 var(--sans);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 .mono {
@@ -759,3 +760,168 @@ body {
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* ============================================================================
+   Diffs · Wins reel · Presentation mode  (added for the presentation polish)
+   ============================================================================ */
+
+/* --- bar icon buttons (presentation / fullscreen) --- */
+.iconbtn {
+  background: var(--panel-2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  line-height: 1;
+  padding: 3px 7px;
+  cursor: pointer;
+}
+.iconbtn:hover { color: var(--fg); border-color: var(--blue); }
+.iconbtn.on { color: var(--bg); background: var(--blue); border-color: var(--blue); }
+
+/* --- repo badge --- */
+.repo-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.repo-badge.analyzer { color: var(--green); border-color: color-mix(in srgb, var(--green) 45%, var(--border)); }
+.repo-badge.polars { color: var(--orange); border-color: color-mix(in srgb, var(--orange) 45%, var(--border)); }
+
+/* --- clickable affordances on existing widgets --- */
+.tbar.clickable { cursor: pointer; }
+.tbar.clickable:hover { filter: brightness(1.25); outline: 1px solid var(--blue); }
+.tbar-diff {
+  position: absolute;
+  top: 3px; left: 50%; transform: translateX(-50%);
+  font-size: 10px; color: var(--bg);
+  background: var(--blue); padding: 0 3px; line-height: 1.4;
+}
+.bar-col.has-diff .tbar { box-shadow: inset 0 2px 0 var(--blue); }
+.bar-sha.link, .feed-commit.link { color: var(--blue); cursor: pointer; }
+.bar-sha.link:hover, .feed-commit.link:hover { text-decoration: underline; }
+.feed-row.clickable { cursor: pointer; }
+.feed-row.clickable:hover { background: var(--panel-2); }
+.view-diff { color: var(--blue); font-size: 11px; white-space: nowrap; }
+
+/* ============================ WINS VIEW ============================ */
+.wins-view { padding: 18px; overflow: auto; height: 100%; }
+.wins-hero { margin: 6px 6px 22px; }
+.wins-hero h1 {
+  font-size: 26px; font-weight: 650; line-height: 1.25;
+  margin: 0 0 8px; letter-spacing: -0.01em; max-width: 60ch;
+}
+.hero-accent { color: var(--green); }
+.wins-hero p { margin: 0 0 18px; max-width: 70ch; font-size: 13px; }
+
+.gain-band { display: flex; flex-wrap: wrap; gap: 10px; }
+.gain {
+  background: var(--panel); border: 1px solid var(--border);
+  border-left: 2px solid var(--green);
+  padding: 10px 14px; min-width: 130px;
+}
+.gain-pct { font: 650 22px/1 var(--mono); color: var(--green); }
+.gain-label { font-size: 12px; margin-top: 5px; color: var(--fg); }
+.gain-sub { margin-top: 2px; }
+
+.wins-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+.wincard {
+  display: flex; flex-direction: column; gap: 9px;
+  text-align: left; font: inherit; color: var(--fg);
+  background: var(--panel); border: 1px solid var(--border);
+  border-top: 2px solid var(--border);
+  padding: 14px; cursor: default;
+}
+.wincard.clickable { cursor: pointer; }
+.wincard.clickable:hover { border-color: var(--blue); border-top-color: var(--blue); background: var(--panel-2); }
+.wincard:disabled { opacity: 0.85; }
+.wincard-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.wincard-pct { font: 650 18px/1 var(--mono); color: var(--muted); }
+.wincard-pct.good { color: var(--green); }
+.wincard-fn { font-size: 14px; color: var(--blue); word-break: break-word; }
+.wincard-note { font-size: 12px; color: var(--muted); line-height: 1.5; min-height: 2.5em; }
+.wincard-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; }
+
+/* ============================ DIFF MODAL ============================ */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(8, 9, 14, 0.72);
+  display: flex; align-items: center; justify-content: center;
+  padding: 4vh 4vw;
+  backdrop-filter: blur(2px);
+}
+.modal {
+  display: flex; flex-direction: column;
+  width: min(1100px, 96vw); height: min(86vh, 900px);
+  background: var(--bg); border: 1px solid var(--blue);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+}
+.modal-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 14px; border-bottom: 1px solid var(--border);
+  background: var(--panel);
+}
+.modal-title { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.modal-subject { font-size: 13px; color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.modal-meta { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.modal-close {
+  background: var(--panel-2); color: var(--muted);
+  border: 1px solid var(--border); cursor: pointer;
+  padding: 2px 8px; font-size: 13px;
+}
+.modal-close:hover { color: var(--pink); border-color: var(--pink); }
+.modal-files {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  padding: 8px 14px; border-bottom: 1px solid var(--border-dim);
+  background: var(--panel);
+}
+.dfile { font-size: 11px; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; }
+.dfile-add { color: var(--green); }
+.dfile-del { color: var(--pink); }
+
+.diff-scroll { overflow: auto; flex: 1; background: var(--bg); }
+.diff { margin: 0; padding: 8px 0; font-family: var(--mono); font-size: 12px; line-height: 1.55; }
+.dl { padding: 0 14px; white-space: pre; }
+.dl.add { background: color-mix(in srgb, var(--green) 12%, transparent); color: #c6e29a; }
+.dl.del { background: color-mix(in srgb, var(--pink) 12%, transparent); color: #f0a3b1; }
+.dl.hunk { color: var(--purple); background: var(--panel); margin: 4px 0; }
+.dl.file { color: var(--blue); font-weight: 600; margin-top: 6px; }
+.dl.meta { color: var(--muted); }
+.dl.ctx { color: var(--fg); }
+
+.modal-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 8px 14px; border-top: 1px solid var(--border); background: var(--panel);
+}
+.modal-hint { color: var(--muted); }
+
+/* ============================ PRESENTATION MODE ============================ */
+.app.present { font-size: 15px; }
+.app.present .bar { height: 42px; font-size: 14px; }
+.app.present .tab { font-size: 15px; padding: 6px 14px; }
+.app.present .main { padding: 0; }
+.app.present .wins-view { padding: 4vh 6vw; }
+.app.present .wins-hero { text-align: center; margin-bottom: 36px; }
+.app.present .wins-hero h1 { font-size: 44px; max-width: none; margin: 0 auto 14px; }
+.app.present .wins-hero p { font-size: 16px; margin: 0 auto 26px; }
+.app.present .gain-band { justify-content: center; gap: 16px; }
+.app.present .gain { min-width: 180px; padding: 16px 22px; }
+.app.present .gain-pct { font-size: 34px; }
+.app.present .gain-label { font-size: 14px; }
+.app.present .wins-grid {
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px; max-width: 1500px; margin: 0 auto;
+}
+.app.present .wincard { padding: 20px; gap: 12px; }
+.app.present .wincard-pct { font-size: 26px; }
+.app.present .wincard-fn { font-size: 17px; }
+.app.present .wincard-note { font-size: 13px; }
+.app.present .timeline, .app.present .activity { font-size: 14px; }
+.app.present .tbar-ms { font-size: 12px; }

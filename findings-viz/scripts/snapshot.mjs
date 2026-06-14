@@ -22,11 +22,19 @@ const cleanPath = (p) =>
         .replace(/\/Users\/[^/]+\//, "~/") // any other home -> ~/
     : p;
 
+// Scrub absolute home paths from free text (git patches are repo-relative already,
+// this is just defensive) without altering the diff content itself.
+const scrubText = (s) =>
+  typeof s === "string"
+    ? s.replace(/\/Users\/[^/\s]+\//g, "~/").replace(/.*\/Source2\//g, "")
+    : s;
+
 const walk = (o) => {
   if (Array.isArray(o)) return o.map(walk);
   if (o && typeof o === "object") {
     for (const k of Object.keys(o)) {
-      if (k === "snippet") o[k] = null; // drop source-code bodies
+      if (k === "snippet") o[k] = null; // drop profiler source-code dumps
+      else if (k === "patch") o[k] = scrubText(o[k]); // KEEP win diffs (the highlight)
       else if (k === "file") o[k] = cleanPath(o[k]);
       else o[k] = walk(o[k]);
     }

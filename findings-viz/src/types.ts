@@ -65,6 +65,26 @@ export interface Hotspot {
   tags: string[];
 }
 
+export interface DiffFile {
+  file: string;
+  add: number;
+  del: number;
+}
+
+export interface CommitDiff {
+  sha: string;
+  short: string;
+  repo: string;
+  author: string;
+  date: string;
+  subject: string;
+  stat: string;
+  files: DiffFile[];
+  patch: string;
+}
+
+export type DiffMap = Record<string, CommitDiff>;
+
 export interface RunFindings {
   id: string;
   workload: string;

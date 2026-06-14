@@ -559,5 +559,13 @@
     "status": "rejected",
     "function": "find_best_numeric_split",
     "note": "taxi -0.02% (below -3.0% threshold)"
+  },
+  {
+    "ts_ms": 1781395903430,
+    "run": "autoperf-r1",
+    "iteration": 1,
+    "status": "info",
+    "function": "find_best_numeric_split",
+    "note": "lens=dedup: tests=ok primary=-0.33% worst_guard=-17.26%"
   }
 ]

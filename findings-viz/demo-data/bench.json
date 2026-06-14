@@ -518,5 +518,43 @@
       "subject": "perf(philtool_core): ryu-formatting — materialize phase4 segmentation frame once to avoid re-running numeric->String casts per group_by (taxi-full -5.66%) [autoperf]",
       "dirty": false
     }
+  },
+  {
+    "label": "taxi-full",
+    "runs": 2,
+    "min_ms": 22305,
+    "median_ms": 23679,
+    "mean_ms": 22992,
+    "samples_ms": [
+      23679,
+      22305
+    ],
+    "peak_rss_bytes": 3621322752,
+    "created_at_ms": 1781395431380,
+    "git": {
+      "commit": "a769d6446141088a86eacacb3468fafa67c91531",
+      "short": "a769d64",
+      "subject": "perf(philtool_core): ryu-formatting — materialize phase4 segmentation frame once to avoid re-running numeric->String casts per group_by (taxi-full -5.66%) [autoperf]",
+      "dirty": true
+    }
+  },
+  {
+    "label": "flights-full",
+    "runs": 2,
+    "min_ms": 475,
+    "median_ms": 1795,
+    "mean_ms": 1135,
+    "samples_ms": [
+      1795,
+      475
+    ],
+    "peak_rss_bytes": 670564352,
+    "created_at_ms": 1781395436180,
+    "git": {
+      "commit": "a769d6446141088a86eacacb3468fafa67c91531",
+      "short": "a769d64",
+      "subject": "perf(philtool_core): ryu-formatting — materialize phase4 segmentation frame once to avoid re-running numeric->String casts per group_by (taxi-full -5.66%) [autoperf]",
+      "dirty": true
+    }
   }
 ]

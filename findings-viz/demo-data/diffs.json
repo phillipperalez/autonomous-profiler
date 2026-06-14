@@ -1,0 +1,155 @@
+{
+  "7979003": {
+    "sha": "79790031b06b0d424c547d7e43036c217a6af95b",
+    "short": "7979003",
+    "repo": "analyzer",
+    "author": "Phillip Peralez",
+    "date": "2026-06-13T12:25:02-07:00",
+    "subject": "perf(philtool_core): compute_pearson_correlation — null-free contiguous-slice fast path avoids per-element Option iterator overhead (flights-1m -3.2%, RAM 669MB)",
+    "stat": "1 file changed, 31 insertions(+)",
+    "files": [
+      {
+        "file": "philtool-core/src/analysis/bivariate/correlation.rs",
+        "add": 31,
+        "del": 0
+      }
+    ],
+    "patch": "diff --git a/philtool-core/src/analysis/bivariate/correlation.rs b/philtool-core/src/analysis/bivariate/correlation.rs\nindex e99f889..c9cb1e4 100644\n--- a/philtool-core/src/analysis/bivariate/correlation.rs\n+++ b/philtool-core/src/analysis/bivariate/correlation.rs\n@@ -214,8 +214,27 @@ fn compute_pearson_correlation(x: &ChunkedArray<Float64Type>, y: &ChunkedArray<F\n     let mut sum_x2 = 0.0;\n     let mut sum_y2 = 0.0;\n     let mut n = 0;\n \n+    // Fast path: when both columns are fully non-null and equal length, read\n+    // contiguous f64 slices and avoid per-element Option matching on the\n+    // ChunkedArray iterators (which dominated self-time here).\n+    if x.null_count() == 0 && y.null_count() == 0 && x.len() == y.len() {\n+        let xr = x.rechunk();\n+        let yr = y.rechunk();\n+        if let (Ok(xs), Ok(ys)) = (xr.cont_slice(), yr.cont_slice()) {\n+            for (&x_val, &y_val) in xs.iter().zip(ys.iter()) {\n+                sum_x += x_val;\n+                sum_y += y_val;\n+                sum_xy += x_val * y_val;\n+                sum_x2 += x_val * x_val;\n+                sum_y2 += y_val * y_val;\n+            }\n+            n = xs.len();\n+            return finalize_pearson(sum_x, sum_y, sum_xy, sum_x2, sum_y2, n);\n+        }\n+    }\n+\n     for (x_val, y_val) in x.into_iter().zip(y.into_iter()) {\n         if let (Some(x_val), Some(y_val)) = (x_val, y_val) {\n             sum_x += x_val;\n             sum_y += y_val;\n@@ -225,8 +244,20 @@ fn compute_pearson_correlation(x: &ChunkedArray<Float64Type>, y: &ChunkedArray<F\n             n += 1;\n         }\n     }\n \n+    finalize_pearson(sum_x, sum_y, sum_xy, sum_x2, sum_y2, n)\n+}\n+\n+#[inline]\n+fn finalize_pearson(\n+    sum_x: f64,\n+    sum_y: f64,\n+    sum_xy: f64,\n+    sum_x2: f64,\n+    sum_y2: f64,\n+    n: usize,\n+) -> AnalyzerResult<f64> {\n     if n < 2 {\n         return Ok(0.0);\n     }\n \n"
+  },
+  "d31f7ba": {
+    "sha": "d31f7ba33c79e0b82f784298214b794c730de57e",
+    "short": "d31f7ba",
+    "repo": "analyzer",
+    "author": "Phillip Peralez",
+    "date": "2026-06-13T12:22:29-07:00",
+    "subject": "perf(philtool_core): detect_multivariate_outliers — hoist constant label format! out of outlier loop + null-free contiguous-slice matrix extraction (flights-1m -11.7%, RAM 553MB)",
+    "stat": "1 file changed, 26 insertions(+), 2 deletions(-)",
+    "files": [
+      {
+        "file": "philtool-core/src/analysis/anomaly/multivariate.rs",
+        "add": 26,
+        "del": 2
+      }
+    ],
+    "patch": "diff --git a/philtool-core/src/analysis/anomaly/multivariate.rs b/philtool-core/src/analysis/anomaly/multivariate.rs\nindex 4b6004f..48bc45a 100644\n--- a/philtool-core/src/analysis/anomaly/multivariate.rs\n+++ b/philtool-core/src/analysis/anomaly/multivariate.rs\n@@ -68,8 +68,11 @@ pub fn detect_multivariate_outliers(\n \n     // MEMORY LIMIT: Only keep top 100K outliers by severity to avoid OOM\n     const MAX_OUTLIERS_TO_KEEP: usize = 100_000;\n \n+    // Variable label is constant across all outliers; build once instead of per-record.\n+    let variable_label = format!(\"multivariate_{}\", col_names.join(\"_\"));\n+\n     loop {\n         batch_num += 1;\n \n         // Load batch\n@@ -104,9 +107,9 @@ pub fn detect_multivariate_outliers(\n                 // Only keep if we haven't hit the limit, or if it's more severe than the weakest one\n                 if outliers.len() < MAX_OUTLIERS_TO_KEEP {\n                     outliers.push(OutlierRecord {\n                         row_index: global_row_idx,\n-                        variable: format!(\"multivariate_{}\", col_names.join(\"_\")),\n+                        variable: variable_label.clone(),\n                         value: distance_sq,\n                         z_score: distance_sq.sqrt(),\n                         outlier_type: OutlierType::Mahalanobis,\n                     });\n@@ -116,9 +119,9 @@ pub fn detect_multivariate_outliers(\n                         .min_by(|(_, a), (_, b)| a.value.partial_cmp(&b.value).unwrap()) {\n                         if distance_sq > outliers[min_idx].value {\n                             outliers[min_idx] = OutlierRecord {\n                                 row_index: global_row_idx,\n-                                variable: format!(\"multivariate_{}\", col_names.join(\"_\")),\n+                                variable: variable_label.clone(),\n                                 value: distance_sq,\n                                 z_score: distance_sq.sqrt(),\n                                 outlier_type: OutlierType::Mahalanobis,\n                             };\n@@ -209,8 +212,29 @@ fn extract_numeric_matrix_with_indices(\n \n     let n_cols = series_list.len();\n     let total_rows = series_list[0].len();\n \n+    // FAST PATH: if no column has nulls, every row is valid. Read from contiguous\n+    // (rechunked) slices instead of per-element ChunkedArray::get.\n+    if series_list.iter().all(|ca| ca.null_count() == 0) {\n+        let contiguous: Vec<_> =\n+            series_list.iter().map(|ca| ca.rechunk()).collect();\n+        let slices: Vec<&[f64]> =\n+            contiguous.iter().map(|ca| ca.cont_slice().unwrap()).collect();\n+\n+        let mut flat_data = Vec::with_capacity(total_rows * n_cols);\n+        for row_idx in 0..total_rows {\n+            for s in &slices {\n+                flat_data.push(s[row_idx]);\n+            }\n+        }\n+\n+        let valid_row_indices: Vec<usize> =\n+            (batch_offset..batch_offset + total_rows).collect();\n+        let matrix = Array2::from_shape_vec((total_rows, n_cols), flat_data)?;\n+        return Ok((matrix, valid_row_indices));\n+    }\n+\n     // Build mask: true if ALL columns are non-null for this row\n     let mut row_mask = vec![true; total_rows];\n     for ca in &series_list {\n         for (i, opt_val) in ca.into_iter().enumerate() {\n"
+  },
+  "a349a1a": {
+    "sha": "a349a1af1ee038f90809930f3fde5572ddb16876",
+    "short": "a349a1a",
+    "repo": "analyzer",
+    "author": "Phillip Peralez",
+    "date": "2026-06-13T12:29:23-07:00",
+    "subject": "perf(philtool_core): detect_univariate_outliers — null-free contiguous-slice batch read avoids per-element Option filter_map collect (flights-1m -5.1%, RAM 654MB)",
+    "stat": "1 file changed, 20 insertions(+), 5 deletions(-)",
+    "files": [
+      {
+        "file": "philtool-core/src/analysis/anomaly/univariate.rs",
+        "add": 20,
+        "del": 5
+      }
+    ],
+    "patch": "diff --git a/philtool-core/src/analysis/anomaly/univariate.rs b/philtool-core/src/analysis/anomaly/univariate.rs\nindex eeb3f32..32732fd 100644\n--- a/philtool-core/src/analysis/anomaly/univariate.rs\n+++ b/philtool-core/src/analysis/anomaly/univariate.rs\n@@ -66,13 +66,28 @@ pub fn detect_univariate_outliers(\n                 Ok(s) => s,\n                 Err(_) => break,\n             };\n \n-            let values: Vec<f64> = series\n-                .f64()?\n-                .into_iter()\n-                .filter_map(|v| v)\n-                .collect();\n+            // Fast path: when the batch column is fully non-null, read a\n+            // contiguous f64 slice directly (rechunk + cont_slice) and avoid\n+            // the per-element Option matching + Vec collection that dominated\n+            // self-time here. Fall back to the iterator path when nulls exist.\n+            let ca = series.f64()?;\n+            let rc;\n+            let owned_values;\n+            let values: &[f64] = if ca.null_count() == 0 {\n+                rc = ca.rechunk();\n+                match rc.cont_slice() {\n+                    Ok(s) => s,\n+                    Err(_) => {\n+                        owned_values = ca.into_iter().flatten().collect::<Vec<f64>>();\n+                        &owned_values\n+                    }\n+                }\n+            } else {\n+                owned_values = ca.into_iter().flatten().collect::<Vec<f64>>();\n+                &owned_values\n+            };\n \n             // Detect Z-score outliers\n             for (i, &value) in values.iter().enumerate() {\n                 let z_score = (value - stats.mean) / stats.std;\n"
+  },
+  "f2d0542": {
+    "sha": "f2d0542ec44d61f3be340ccbccde6a03c7e52660",
+    "short": "f2d0542",
+    "repo": "analyzer",
+    "author": "Phillip Peralez",
+    "date": "2026-06-13T12:35:51-07:00",
+    "subject": "perf(philtool_core): extract_numeric_matrix — null-free contiguous-slice fast path avoids per-element ChunkedArray::get on 1M-row sample (flights-1m -11.9%, RAM 652MB)",
+    "stat": "1 file changed, 19 insertions(+)",
+    "files": [
+      {
+        "file": "philtool-core/src/analysis/anomaly/multivariate.rs",
+        "add": 19,
+        "del": 0
+      }
+    ],
+    "patch": "diff --git a/philtool-core/src/analysis/anomaly/multivariate.rs b/philtool-core/src/analysis/anomaly/multivariate.rs\nindex 48bc45a..cb42b38 100644\n--- a/philtool-core/src/analysis/anomaly/multivariate.rs\n+++ b/philtool-core/src/analysis/anomaly/multivariate.rs\n@@ -297,8 +297,27 @@ fn extract_numeric_matrix(\n \n     let n_cols = series_list.len();\n     let total_rows = series_list[0].len();\n \n+    // FAST PATH: if no column has nulls, every row is valid. Read from contiguous\n+    // (rechunked) slices instead of per-element ChunkedArray::get.\n+    if series_list.iter().all(|ca| ca.null_count() == 0) {\n+        let contiguous: Vec<_> =\n+            series_list.iter().map(|ca| ca.rechunk()).collect();\n+        let slices: Vec<&[f64]> =\n+            contiguous.iter().map(|ca| ca.cont_slice().unwrap()).collect();\n+\n+        let mut flat_data = Vec::with_capacity(total_rows * n_cols);\n+        for row_idx in 0..total_rows {\n+            for s in &slices {\n+                flat_data.push(s[row_idx]);\n+            }\n+        }\n+\n+        let matrix = Array2::from_shape_vec((total_rows, n_cols), flat_data)?;\n+        return Ok((matrix, valid_cols));\n+    }\n+\n     // Build mask: true if ALL columns are non-null for this row\n     let mut row_mask = vec![true; total_rows];\n     for ca in &series_list {\n         for (i, opt_val) in ca.into_iter().enumerate() {\n"
+  },
+  "9a8fa7f": {
+    "sha": "9a8fa7f8a57a7f44a8512d4b78653d2e97fb23a8",
+    "short": "9a8fa7f",
+    "repo": "analyzer",
+    "author": "Phillip Peralez",
+    "date": "2026-06-13T12:40:17-07:00",
+    "subject": "perf(philtool_core): calculate_covariance_matrix — center each row once + symmetric upper-triangle accumulation over contiguous slices, avoiding O(ncols^2*nrows) redundant centering (flights-1m -4.8%, RAM 672MB)",
+    "stat": "1 file changed, 27 insertions(+), 11 deletions(-)",
+    "files": [
+      {
+        "file": "philtool-core/src/analysis/anomaly/multivariate.rs",
+        "add": 27,
+        "del": 11
+      }
+    ],
+    "patch": "diff --git a/philtool-core/src/analysis/anomaly/multivariate.rs b/philtool-core/src/analysis/anomaly/multivariate.rs\nindex cb42b38..50c74c6 100644\n--- a/philtool-core/src/analysis/anomaly/multivariate.rs\n+++ b/philtool-core/src/analysis/anomaly/multivariate.rs\n@@ -365,21 +365,37 @@ fn calculate_covariance_matrix(\n     }\n     let n_rows = matrix.nrows() as f64;\n     let n_cols = matrix.ncols();\n \n-    let mut cov = Array2::zeros((n_cols, n_cols));\n-\n-    for i in 0..n_cols {\n-        for j in 0..n_cols {\n-            let mut covariance = 0.0;\n-\n-            for row_idx in 0..matrix.nrows() {\n-                let xi = matrix[[row_idx, i]] - means[i];\n-                let xj = matrix[[row_idx, j]] - means[j];\n-                covariance += xi * xj;\n+    // Center each row once into a contiguous (row-major) buffer, then accumulate\n+    // the upper triangle exploiting Cov[i,j] == Cov[j,i]. Avoids recomputing\n+    // (x - mean) O(n_cols^2) times and replaces strided [[row,i]] indexing with\n+    // sequential slice reads over each centered row.\n+    let means_slice = means.as_slice().expect(\"means contiguous\");\n+    let mut centered_row = vec![0.0f64; n_cols];\n+    let mut acc = vec![0.0f64; n_cols * n_cols];\n+\n+    for row in matrix.rows() {\n+        let row_slice = row.as_slice().expect(\"matrix row contiguous\");\n+        for c in 0..n_cols {\n+            centered_row[c] = row_slice[c] - means_slice[c];\n+        }\n+        for i in 0..n_cols {\n+            let xi = centered_row[i];\n+            let base = i * n_cols;\n+            for j in i..n_cols {\n+                acc[base + j] += xi * centered_row[j];\n             }\n+        }\n+    }\n \n-            cov[[i, j]] = covariance / (n_rows - 1.0);\n+    let denom = n_rows - 1.0;\n+    let mut cov = Array2::zeros((n_cols, n_cols));\n+    for i in 0..n_cols {\n+        for j in i..n_cols {\n+            let v = acc[i * n_cols + j] / denom;\n+            cov[[i, j]] = v;\n+            cov[[j, i]] = v;\n         }\n     }\n \n     Ok(cov)\n"
+  },
+  "786a622": {
+    "sha": "786a6223fe89b92153324c8a5b67b319abf2d12a",
+    "short": "786a622",
+    "repo": "analyzer",
+    "author": "Phillip Peralez",
+    "date": "2026-06-13T12:43:13-07:00",
+    "subject": "perf(philtool_core): build_top_anomalies — defer identical per-flag variables Vec<String> until after top-N truncation, eliminating ~80K column-name vector allocs/drops (flights-1m -10.3%, RAM 651MB)",
+    "stat": "1 file changed, 12 insertions(+), 1 deletion(-)",
+    "files": [
+      {
+        "file": "philtool-core/src/analysis/anomaly/mod.rs",
+        "add": 12,
+        "del": 1
+      }
+    ],
+    "patch": "diff --git a/philtool-core/src/analysis/anomaly/mod.rs b/philtool-core/src/analysis/anomaly/mod.rs\nindex 711d0f3..ec4b860 100644\n--- a/philtool-core/src/analysis/anomaly/mod.rs\n+++ b/philtool-core/src/analysis/anomaly/mod.rs\n@@ -370,10 +370,13 @@ fn build_top_anomalies(\n             temporal_flags: Vec::new(),\n             conditional_flags: Vec::new(),\n         });\n \n+        // `variables` is identical for every multivariate flag; defer filling it\n+        // until after top-N truncation so we don't allocate (and immediately drop)\n+        // ~80K identical column-name Vec<String>s for records that get discarded.\n         context.multivariate_flags.push(MultivariateFlag {\n-            variables: numeric_cols.to_vec(),\n+            variables: Vec::new(),\n             mahalanobis_distance: outlier.z_score, // Reusing z_score field for Mahalanobis distance\n             threshold: config.mahalanobis_threshold,\n         });\n     }\n@@ -453,8 +456,16 @@ fn build_top_anomalies(\n     // Sort by anomaly score (descending) and take top N\n     enriched_records.sort_by(|a, b| b.anomaly_score.partial_cmp(&a.anomaly_score).unwrap());\n     enriched_records.truncate(top_n);\n \n+    // Now that only the surviving top-N records remain, populate the deferred\n+    // `variables` field on their multivariate flags (identical for all flags).\n+    for record in &mut enriched_records {\n+        for flag in &mut record.context.multivariate_flags {\n+            flag.variables = numeric_cols.to_vec();\n+        }\n+    }\n+\n     // Load actual row data for top N anomalies\n     if !enriched_records.is_empty() {\n         // Collect all row indices we need\n         let row_indices: Vec<usize> = enriched_records.iter().map(|r| r.row_index).collect();\n"
+  },
+  "e30ab42": {
+    "sha": "e30ab425e4cbd9629eaabe8faa62ae2b1ef74ed4",
+    "short": "e30ab42",
+    "repo": "polars",
+    "author": "Phillip Peralez",
+    "date": "2026-06-13T13:48:22-07:00",
+    "subject": "perf(sort): resolve_chunked_idx — branch-light linear scan over cumlens for small chunk counts in the per-element gather hot path; nyc-taxi columns have 3 chunks so the post-sort gather binary-searched cumlens once per element (polars-taxi -4.0%, RAM 1390MB) [autoperf]",
+    "stat": "1 file changed, 17 insertions(+), 1 deletion(-)",
+    "files": [
+      {
+        "file": "crates/polars-core/src/chunked_array/ops/gather.rs",
+        "add": 17,
+        "del": 1
+      }
+    ],
+    "patch": "diff --git a/crates/polars-core/src/chunked_array/ops/gather.rs b/crates/polars-core/src/chunked_array/ops/gather.rs\nindex 6647747..4e926e1 100644\n--- a/crates/polars-core/src/chunked_array/ops/gather.rs\n+++ b/crates/polars-core/src/chunked_array/ops/gather.rs\n@@ -80,9 +80,25 @@ fn cumulative_lengths<A: StaticArray>(arrs: &[&A]) -> Vec<IdxSize> {\n \n #[rustfmt::skip]\n #[inline]\n fn resolve_chunked_idx(idx: IdxSize, cumlens: &[IdxSize]) -> (usize, usize) {\n-    let chunk_idx = cumlens.partition_point(|cl| idx >= *cl) - 1;\n+    // `cumlens` holds the exclusive prefix sums of the chunk lengths (the first\n+    // element is always 0). We want the last chunk whose start offset is <= idx.\n+    // The vast majority of gathered arrays have only a handful of chunks, so a\n+    // branch-predictor-friendly linear scan beats the binary search performed by\n+    // `partition_point` in the per-element gather hot path. Falls back to the\n+    // binary search for arrays with many chunks.\n+    let chunk_idx = if cumlens.len() <= 8 {\n+        // Count how many chunk-start offsets are <= idx; the matching chunk is\n+        // one before that count. cumlens[0] == 0 so the count is always >= 1.\n+        let mut count = 0;\n+        for cl in cumlens {\n+            count += (idx >= *cl) as usize;\n+        }\n+        count - 1\n+    } else {\n+        cumlens.partition_point(|cl| idx >= *cl) - 1\n+    };\n     (chunk_idx, (idx - cumlens[chunk_idx]) as usize)\n }\n \n #[inline]\n"
+  },
+  "1c99b0e": {
+    "sha": "1c99b0ecd8fee5567a23e293b63a84c829b643ac",
+    "short": "1c99b0e",
+    "repo": "analyzer",
+    "author": "Phillip Peralez",
+    "date": "2026-06-13T14:33:06-07:00",
+    "subject": "perf(philtool_core): ExactQuantileCalculator::quantiles — swarm winner [algorithmic] (flights -6.746031746031746%) [autoperf]",
+    "stat": "1 file changed, 55 insertions(+), 9 deletions(-)",
+    "files": [
+      {
+        "file": "philtool-core/src/analysis/exact_univariate.rs",
+        "add": 55,
+        "del": 9
+      }
+    ],
+    "patch": "diff --git a/philtool-core/src/analysis/exact_univariate.rs b/philtool-core/src/analysis/exact_univariate.rs\nindex e619850..283436b 100644\n--- a/philtool-core/src/analysis/exact_univariate.rs\n+++ b/philtool-core/src/analysis/exact_univariate.rs\n@@ -20,24 +20,70 @@ impl ExactQuantileCalculator {\n     pub fn update(&mut self, value: f64) {\n         self.values.push(value);\n     }\n \n-    /// Calculate exact quantiles by sorting all values\n-    /// This is deterministic but requires O(n) memory and O(n log n) time\n+    /// Calculate exact quantiles.\n+    ///\n+    /// Semantics are identical to fully sorting `self.values` and indexing the\n+    /// requested order statistics at `idx = ((p * (n - 1)) as usize).min(n - 1)`.\n+    /// Rather than paying a full O(n log n) comparison sort to read back only a\n+    /// handful of fixed positions, this uses quickselect (`select_nth_unstable_by`)\n+    /// to materialize *only* the requested order statistics. For a fixed, small set\n+    /// of percentiles this is O(n) average time instead of O(n log n).\n+    ///\n+    /// `select_nth_unstable_by` partitions in place so that the element landing at\n+    /// index `k` is exactly the `k`-th order statistic (every element before it is\n+    /// `<=` it, every element after is `>=` it) — bit-identical to the value a full\n+    /// sort would have placed there. Order statistics are well-defined on the\n+    /// multiset, so ties produce identical reads regardless of partition order. We\n+    /// capture each finalized order statistic *immediately* from the value the\n+    /// select returns at the pivot, since a later select over the remaining suffix\n+    /// may reshuffle that boundary slot.\n     pub fn quantiles(&mut self, percentiles: &[f64]) -> Vec<f64> {\n-        if self.values.is_empty() {\n+        let n = self.values.len();\n+        if n == 0 {\n             return vec![f64::NAN; percentiles.len()];\n         }\n \n-        // Sort all values once\n-        self.values.sort_by(|a, b| a.partial_cmp(b).unwrap());\n-\n-        percentiles\n+        // Map each requested percentile to the absolute order-statistic index the\n+        // original (full-sort + index) implementation would have read.\n+        let target_idx: Vec<usize> = percentiles\n             .iter()\n             .map(|&p| {\n-                let index = (p * (self.values.len() - 1) as f64) as usize;\n-                self.values[index.min(self.values.len() - 1)]\n+                let index = (p * (n - 1) as f64) as usize;\n+                index.min(n - 1)\n             })\n+            .collect();\n+\n+        // Distinct indices, ascending. Selecting them left-to-right lets each\n+        // subsequent quickselect operate only on the not-yet-partitioned suffix:\n+        // once index `k` is finalized, everything before it is already `<=` it, so a\n+        // later index `k2 > k` lives entirely within `values[k+1..]`. Total work\n+        // stays linear for a fixed handful of quantiles.\n+        let mut distinct = target_idx.clone();\n+        distinct.sort_unstable();\n+        distinct.dedup();\n+\n+        let cmp = |a: &f64, b: &f64| a.partial_cmp(b).unwrap();\n+\n+        // `base` tracks the start of the still-unpartitioned suffix in absolute\n+        // coordinates; everything in `values[..base]` is already finalized as the\n+        // smallest `base` order statistics. We record each finalized value keyed by\n+        // its absolute index so a later select can't disturb an already-read slot.\n+        let mut by_index: std::collections::HashMap<usize, f64> =\n+            std::collections::HashMap::with_capacity(distinct.len());\n+        let mut base = 0usize;\n+        for &idx in &distinct {\n+            let local = idx - base;\n+            let (_, pivot, _) = self.values[base..].select_nth_unstable_by(local, cmp);\n+            by_index.insert(idx, *pivot);\n+            base = idx + 1;\n+        }\n+\n+        // Read back each requested percentile (preserving caller order / duplicates).\n+        target_idx\n+            .iter()\n+            .map(|idx| by_index[idx])\n             .collect()\n     }\n \n     pub fn quartiles(&mut self) -> (f64, f64, f64) {\n"
+  },
+  "a769d64": {
+    "sha": "a769d6446141088a86eacacb3468fafa67c91531",
+    "short": "a769d64",
+    "repo": "analyzer",
+    "author": "Phillip Peralez",
+    "date": "2026-06-13T16:18:10-07:00",
+    "subject": "perf(philtool_core): ryu-formatting — materialize phase4 segmentation frame once to avoid re-running numeric->String casts per group_by (taxi-full -5.66%) [autoperf]",
+    "stat": "1 file changed, 9 insertions(+)",
+    "files": [
+      {
+        "file": "philtool-core/src/analysis/segmentation/mod.rs",
+        "add": 9,
+        "del": 0
+      }
+    ],
+    "patch": "diff --git a/philtool-core/src/analysis/segmentation/mod.rs b/philtool-core/src/analysis/segmentation/mod.rs\nindex 372a8ab..2122886 100644\n--- a/philtool-core/src/analysis/segmentation/mod.rs\n+++ b/philtool-core/src/analysis/segmentation/mod.rs\n@@ -115,8 +115,17 @@ pub fn analyze_segmentation(\n     for num_col in &profile.numeric_cols {\n         df = df.with_column(col(num_col).cast(DataType::Float64));\n     }\n \n+    // Materialize the casted frame ONCE. analyze_all_segmentations and\n+    // detect_interactions each clone this LazyFrame and collect it many times\n+    // (once per categorical var, plus per numeric batch). Re-collecting the lazy\n+    // plan re-scans the parquet and re-applies every numeric->String cast on each\n+    // call — that cast is the dominant ryu (f64->string) cost in the pipeline.\n+    // Collecting up front makes the scan + casts run a single time; downstream\n+    // group_by/agg on the materialized frame produce identical values.\n+    let df = df.collect()?.lazy();\n+\n     // 1. Analyze all categorical segmentations\n     let segmentations = if !profile.categorical_cols.is_empty() && !profile.numeric_cols.is_empty() {\n         segmentation::analyze_all_segmentations(&df, profile, config)?\n     } else {\n"
+  }
+}
