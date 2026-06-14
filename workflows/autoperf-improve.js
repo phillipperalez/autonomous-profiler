@@ -9,14 +9,17 @@ export const meta = {
 
 // ---- args (built by the /autoperf skill from `ap config --json`) -------------
 // args = { ap_bin, data_dir, mode?, max_rounds?, config: <normalized autoperf.toml> }
-if (!args || !args.config || !args.ap_bin || !args.data_dir) {
+// Tolerate args arriving as a JSON string (some invocation paths stringify it).
+let A = args
+if (typeof A === 'string') { try { A = JSON.parse(A) } catch (_) { /* leave as-is */ } }
+if (!A || !A.config || !A.ap_bin || !A.data_dir) {
   throw new Error('autoperf-improve requires args.config (from `ap config --json`), args.ap_bin, args.data_dir')
 }
-const AP = args.ap_bin
-const DATA = args.data_dir
-const MODE = args.mode || 'swarm' // 'swarm' (N lenses/round) or 'serial' (1 proposer/round)
-const MAX_ROUNDS = args.max_rounds || 3
-const cfg = args.config
+const AP = A.ap_bin
+const DATA = A.data_dir
+const MODE = A.mode || 'swarm' // 'swarm' (N lenses/round) or 'serial' (1 proposer/round)
+const MAX_ROUNDS = A.max_rounds || 3
+const cfg = A.config
 const DIR = cfg.target.dir
 const REPO = cfg.target.repo || cfg.target.dir
 const RAM = cfg.improve.ram_budget_mb || 8192
